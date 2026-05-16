@@ -1,0 +1,41 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                          Django User (built-in)                     │
+│  id, username, email, password, is_staff, date_joined, ...         │
+└──────────────────┬──────────────────────────────────────────────────┘
+                   │
+       ┌───────────┼───────────────┐
+       │           │               │
+       │ 1:1       │ 1:N           │ 1:N
+       │           │               │
+       ▼           ▼               ▼
+┌──────────────┐ ┌─────────────────────────────┐ ┌──────────────────┐
+│FreelancerProfile│ Job                          │ Service          │
+│  user (1:1)    │  client (FK to User)          │  freelancer (FK) │
+│  bio           │  title, description           │  title           │
+│  skills        │  budget, status               │  description     │
+│  hourly_rate   │  category, attachment         │  price, category │
+│  avatar        │  created_at, updated_at       │  created_at      │
+└──────────────┘ └───────┬─────────────────────┘ └──────────────────┘
+                         │
+                   1:N   │
+                         ▼
+              ┌─────────────────────┐
+              │ Bid                 │
+              │  job (FK → Job)     │ CASCADE
+              │  freelancer (FK → User)
+              │  amount, proposal   │
+              │  status, created_at │
+              └─────────────────────┘
+                         │
+                   1:1   │ (each job can have one review?)
+                         │ Actually many Bids but Review is per job.
+                         │ Review is directly tied to Job.
+                         ▼
+              ┌──────────────────────────┐
+              │ Review                   │
+              │  job (FK → Job)          │ CASCADE
+              │  reviewer (FK → User)    │
+              │  reviewee (FK → User)    │
+              │  rating (1-5), comment   │
+              │  created_at              │
+              └──────────────────────────┘
