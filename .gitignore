@@ -1,0 +1,19 @@
+
+# Python virtual environment
+venv/
+
+# Environment variables (contains secrets)
+.env
+
+# SQLite database (local dev only, not for production)
+db.sqlite3
+
+# Python cache
+__pycache__/
+
+# Media files (user uploads)
+media/
+
+# IDE settings (optional but good practice)
+.vscode/
+.idea/
