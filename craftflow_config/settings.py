@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config, Csv
+import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +23,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o9p4rgg(4a4=rp6hjef&z@aai6-x%c1d+5xhgoee2#il4!)p69'
+# SECRET_KEY = 'django-insecure-o9p4rgg(4a4=rp6hjef&z@aai6-x%c1d+5xhgoee2#il4!)p69'
+
+SECRET_KEY = config('SECRET_KEY')
+# If SECRET_KEY is missing from .env, config() raises an error.
+# This prevents accidentally running without a secret key.
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
+# default=False means: if DEBUG is not set in .env, it defaults to False.
+# cast=bool converts the string 'True'/'False' to a Python boolean.
+# In development, .env has DEBUG=True. In production, we won't set it,
+# so it falls back to False — safe by default.
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+# cast=Csv() splits the comma-separated string into a list.
+# e.g., "localhost,127.0.0.1" becomes ["localhost", "127.0.0.1"].
+# Django rejects requests from hosts not in this list (HTTP 400 Bad Request).
 
 
 # Application definition
@@ -37,10 +51,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+     # Third-party apps
+    'rest_framework',                   # Django REST Framework — adds API capabilities
+    'whitenoise.runserver_nostatic',    # WhiteNoise — serves static files in production
+                                        # runserver_nostatic disables Django's built-in
+                                        # static serving in dev, letting WhiteNoise handle it
+                                        # for consistency between dev and prod.
+
+    # Local apps — our own domain logic
+    'accounts',                         # User profiles, registration, login
+    'marketplace',                      # Jobs, services, bids, reviews
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',           # Static file serving (MUST be second)
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,10 +80,15 @@ ROOT_URLCONF = 'craftflow_config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        # Where Django looks for template files.
+        # We use a top-level 'templates/' directory for all apps.
+        'DIRS': [BASE_DIR / 'templates'],
+        # APP_DIRS=True: Django also looks inside each app's 'templates/' subdirectory.
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+              # These add variables to the template context for every request.
+                'django.template.context_processors.debug',      # DEBUG flag and SQL queries
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -73,10 +104,13 @@ WSGI_APPLICATION = 'craftflow_config.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=config(
+            'DATABASE_URL',
+            default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+        ),
+        conn_max_age=600,
+    )
 }
 
 
@@ -114,4 +148,58 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+# URL prefix for static files in templates.
+# e.g., {% static 'css/main.css' %} becomes /static/css/main.css.
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+# Where collectstatic gathers all static files for production.
+# This is NOT the same as STATICFILES_DIRS.
+# collectstatic copies files from STATICFILES_DIRS (and app/static/ dirs)
+# into this single directory. WhiteNoise then serves from here.
+
+STATICFILES_DIRS = [BASE_DIR / 'static']
+# Where we put our custom static files during development.
+# We'll create craftflow/static/css/main.css here.
+
+# WhiteNoise configuration: enable compression and caching
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# CompressedManifestStaticFilesStorage:
+# - Compresses files (gzip) for faster delivery.
+# - Adds a content hash to filenames (e.g., main.abc123.css) for cache busting.
+#   When the file changes, the hash changes, so browsers fetch the new version.
+
+
+# Media files (user-uploaded content)
+MEDIA_URL = '/media/'
+# URL prefix for user-uploaded files (avatar images, job attachments).
+
+MEDIA_ROOT = BASE_DIR / 'media'
+# Where uploaded files are stored on disk.
+# This directory will be created automatically when the first file is saved.
+# It is NOT committed (listed in .gitignore)
+
+
+# Authentication
+LOGIN_URL = '/accounts/login/'
+# Where @login_required redirects unauthenticated users.
+# Also appends ?next= so they return to the original page after login.
+
+LOGIN_REDIRECT_URL = '/'
+# Where Django's built-in LoginView redirects after successful login.
+# We'll use our own views, but this is a safety default.
+
+LOGOUT_REDIRECT_URL = '/'
+# Where to redirect after logout.
+
+
+# Django REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+}
