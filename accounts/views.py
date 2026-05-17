@@ -1,3 +1,168 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
+from django.contrib.auth.models import User
+from .forms import CustomUserRegistrationForm
+from .models import FreelancerProfile
 
-# Create your views here.
+
+def register_view(request):
+    """
+    Handles new user registration.
+
+    GET: Display an empty registration form.
+    POST: Validate the form. If valid, create the user, log them in,
+          and redirect to home. If invalid, re-render with errors.
+
+    The Post/Redirect/Get (PRG) pattern:
+    - On successful POST, we redirect to another page.
+    - This prevents the browser's "Confirm Form Resubmission" dialog
+      if the user refreshes the page.
+    - It also prevents accidental double-submission.
+    """
+    if request.user.is_authenticated:
+        # If the user is already logged in, redirect them to home.
+        # No reason to show the registration page to authenticated users.
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = CustomUserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # form.save() returns the newly created User instance.
+            # The password is already hashed at this point.
+
+            # Log the user in immediately after registration.
+            # This is a UX decision: don't force them to log in after signing up.
+            login(request, user)
+
+            messages.success(
+                request,
+                f'Welcome to CraftFlow, {user.username}! Your account has been created.'
+            )
+            return redirect('home')
+        else:
+            # The form is invalid — Django has already populated form.errors.
+            # We add a generic error message for the user.
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = CustomUserRegistrationForm()
+
+    return render(request, 'accounts/register.html', {'form': form})
+
+
+def login_view(request):
+    """
+    Handles user login.
+
+    We use Django's built-in AuthenticationForm for validation,
+    but implement the view as a function for consistency and clarity.
+
+    AuthenticationForm:
+    - Checks that the username exists and the password matches.
+    - If not, raises a ValidationError on the whole form.
+    """
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        # AuthenticationForm takes 'request' as the first positional argument
+        # because it uses request.session for security (login rate limiting).
+        # data=request.POST must be passed as a keyword argument.
+
+        if form.is_valid():
+            # form.get_user() returns the authenticated User object.
+            # This user has already been verified by authenticate() inside the form.
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, f'Welcome back, {user.username}!')
+            return redirect('home')
+        else:
+            messages.error(request, 'Invalid username or password.')
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'accounts/login.html', {'form': form})
+
+
+def logout_view(request):
+    """
+    Handles user logout.
+
+    We use Django's built-in logout function.
+    This flushes the user's session, removing all session data.
+    """
+    if request.method == 'POST':
+        logout(request)
+        # logout() clears the session and removes the user from request.
+        messages.success(request, 'You have been logged out.')
+        return redirect('home')
+
+    # If someone navigates to /accounts/logout/ via GET, show them the home page.
+    # Logout should only happen via POST.
+    return redirect('home')
+
+
+@login_required
+def profile_view(request, pk):
+    """
+    Displays a user's profile.
+
+    Protected by @login_required: only authenticated users can view profiles.
+    The 'pk' in the URL is the User's primary key.
+    """
+    profile_user = User.objects.get(pk=pk)
+    # Note: We're using User.objects.get() here, not get_object_or_404.
+    # Since we'll wrap it in try/except or use get_object_or_404.
+    # We'll use get_object_or_404 for safety.
+
+    from django.shortcuts import get_object_or_404
+    profile_user = get_object_or_404(User, pk=pk)
+
+    # Try to get the FreelancerProfile. If it doesn't exist, profile is None.
+    try:
+        freelancer_profile = profile_user.freelancer_profile
+        # Accessible via the OneToOneField reverse relation.
+        # The related_name we set is 'freelancer_profile'.
+    except FreelancerProfile.DoesNotExist:
+        freelancer_profile = None
+
+    context = {
+        'profile_user': profile_user,
+        'freelancer_profile': freelancer_profile,
+    }
+    return render(request, 'accounts/profile.html', context)
+
+
+@staff_member_required
+def admin_dashboard(request):
+    """
+    A simple dashboard visible only to staff members.
+
+    @staff_member_required: only users with is_staff=True can access this view.
+    Regular users are redirected to the admin login page.
+
+    This satisfies the Brief's requirement: at least one action restricted to
+    staff or admin users only.
+    """
+    # We can add summary stats here later.
+    total_jobs = 0
+    total_users = 0
+
+    # We'll import models inside the function to avoid circular imports,
+    # or import at the top. For now, we keep it simple.
+    from marketplace.models import Job
+    from django.contrib.auth.models import User
+
+    total_jobs = Job.objects.count()
+    total_users = User.objects.count()
+
+    context = {
+        'total_jobs': total_jobs,
+        'total_users': total_users,
+    }
+    return render(request, 'accounts/admin_dashboard.html', context)

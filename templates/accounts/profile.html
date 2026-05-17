@@ -1,0 +1,55 @@
+<!-- craftflow/templates/accounts/profile.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_user.username }}'s Profile | CraftFlow{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h1>{{ profile_user.username }}</h1>
+
+    {% if freelancer_profile %}
+        <section class="profile-section">
+            <h2>About</h2>
+            <p>{{ freelancer_profile.bio|default:"No bio provided yet." }}</p>
+        </section>
+
+        <section class="profile-section">
+            <h2>Skills</h2>
+            {% if freelancer_profile.skills %}
+                <ul class="skills-list">
+                    {# Split the comma-separated skills string into a list #}
+                    {% for skill in freelancer_profile.skills.split %}
+                        <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No skills listed yet.</p>
+            {% endif %}
+        </section>
+
+        {% if freelancer_profile.hourly_rate %}
+            <section class="profile-section">
+                <h2>Hourly Rate</h2>
+                <p>${{ freelancer_profile.hourly_rate|floatformat:2 }} / hour</p>
+            </section>
+        {% endif %}
+
+        {% if freelancer_profile.avatar %}
+            <section class="profile-section">
+                <img src="{{ freelancer_profile.avatar.url }}" 
+                     alt="{{ profile_user.username }}'s avatar" 
+                     class="profile-avatar">
+            </section>
+        {% endif %}
+    {% else %}
+        <p>This user hasn't created a freelancer profile yet.</p>
+    {% endif %}
+
+    {% if request.user == profile_user %}
+        <p>
+            <a href="#" class="btn">Edit Profile</a>
+            {# We'll wire the edit profile URL later. #}
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

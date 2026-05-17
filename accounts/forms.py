@@ -1,0 +1,42 @@
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+
+class CustomUserRegistrationForm(UserCreationForm):
+    """
+    Extends Django's built-in UserCreationForm.
+
+    UserCreationForm already handles:
+    - Username uniqueness validation.
+    - Password strength validation (must not be too common, entirely numeric,
+      or similar to the username).
+    - Password confirmation (password1 and password2 must match).
+    - Automatic password hashing on save (PBKDF2 by default).
+
+    We extend it to require email, which is optional in the default form
+    but important for a professional marketplace (password resets, notifications).
+    """
+    email = forms.EmailField(
+        required=True,
+        help_text='Required. Enter a valid email address.'
+    )
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password1', 'password2')
+        # We explicitly list the fields we want in the form.
+        # 'password1' is the password field, 'password2' is the confirmation field.
+        # They are automatically validated to match.
+
+    def save(self, commit=True):
+        """
+        Override save() to set the email field on the User model
+        before saving to the database.
+        """
+        user = super().save(commit=False)
+        # commit=False creates the User instance in memory without hitting the DB.
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+        return user

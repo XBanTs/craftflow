@@ -1,0 +1,42 @@
+<!-- craftflow/templates/accounts/register.html -->
+{% extends 'base.html' %}
+
+{% block title %}Register | CraftFlow{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h1>Create Your Account</h1>
+    <p>Join CraftFlow and start connecting with top freelancers and clients.</p>
+
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+
+                {# Display per-field errors #}
+                {% if field.errors %}
+                    <div class="field-errors">
+                        {% for error in field.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {# Display help text (e.g., password requirements) #}
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+
+    <p class="auth-alt">
+        Already have an account? <a href="{% url 'login' %}">Log in</a>
+    </p>
+</div>
+{% endblock %}

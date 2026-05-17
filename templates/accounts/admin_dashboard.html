@@ -1,0 +1,24 @@
+<!-- craftflow/templates/accounts/admin_dashboard.html -->
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard | CraftFlow{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <h1>Admin Dashboard</h1>
+    <p>Welcome, {{ request.user.username }}. You have staff access.</p>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h2>Total Jobs</h2>
+            <p class="stat-number">{{ total_jobs }}</p>
+        </div>
+        <div class="stat-card">
+            <h2>Total Users</h2>
+            <p class="stat-number">{{ total_users }}</p>
+        </div>
+    </div>
+
+    <a href="{% url 'admin:index' %}" class="btn">Django Admin Panel</a>
+</div>
+{% endblock %}
