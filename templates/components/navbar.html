@@ -1,0 +1,44 @@
+<!-- craftflow/templates/components/navbar.html -->
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <!-- Brand / Logo -->
+        <a href="{% url 'home' %}" class="navbar-brand">
+            CraftFlow
+        </a>
+        {# {% url 'home' %} is a named URL pattern. We'll define 'home' in urls.py later.
+           Using named URLs means we can change the actual path without breaking links. #}
+
+        <!-- Navigation Links -->
+        <div class="navbar-links">
+            {# Conditional rendering based on authentication state.
+               This is the exact conditional the Brief requires. #}
+            {% if request.user.is_authenticated %}
+                {# Authenticated users see these links #}
+
+                <a href="{% url 'job_list' %}" class="nav-link">Browse Jobs</a>
+                <a href="{% url 'job_create' %}" class="nav-link">Post a Job</a>
+                <a href="{% url 'profile' request.user.pk %}" class="nav-link">
+                    My Profile
+                </a>
+                {# request.user.pk — the primary key of the logged-in user.
+                   Since all users have a pk, this works even if they haven't created a profile yet.
+                   The profile view will handle missing profiles gracefully. #}
+
+                <!-- Logout Form -->
+                <form method="post" action="{% url 'logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    {# CSRF token is required for POST forms, even for logout.
+                       Django's logout view expects a POST (since Django 4.1+)
+                       to prevent CSRF-based logouts. #}
+                    <button type="submit" class="nav-link btn-logout">Logout</button>
+                </form>
+
+            {% else %}
+                {# Guest users see these links #}
+
+                <a href="{% url 'login' %}" class="nav-link">Login</a>
+                <a href="{% url 'register' %}" class="nav-link">Register</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>

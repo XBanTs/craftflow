@@ -1,0 +1,55 @@
+<!-- craftflow/templates/base.html -->
+{% load static %}
+{# The load static tag must appear at the top of any template that uses {% static %}.
+   It makes the static template library available for this template. #}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>
+        {% block title %}CraftFlow{% endblock %}
+        {# Each child template can override the page title.
+           If not overridden, the default is just "CraftFlow". #}
+    </title>
+
+    <!-- Custom CSS (our main stylesheet) -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {# The {% static 'path' %} tag resolves to /static/path.
+       In production, WhiteNoise serves the file from STATIC_ROOT. #}
+
+    {% block extra_css %}{% endblock %}
+    {# A block for page-specific CSS files or inline styles. #}
+</head>
+<body>
+    <!-- Navigation -->
+    {% include 'components/navbar.html' %}
+    {# include renders another template inline.
+       The navbar appears on every page without repeating code. #}
+
+    <!-- Flash Messages Container -->
+    {% include 'components/flash_messages.html' %}
+    {# Flash messages are also included globally, so every page shows
+       success/error notifications. #}
+
+    <!-- Main Content Area -->
+    <main class="container">
+        {% block content %}
+        {# This is where the child template's unique content goes. #}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; {% now "Y" %} CraftFlow. Built with Django &amp; deployed on Render.</p>
+            {# {% now "Y" %} renders the current year, keeping the footer auto-updated. #}
+        </div>
+    </footer>
+
+    <!-- JavaScript block (for page-specific scripts) -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
