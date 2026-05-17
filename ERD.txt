@@ -1,3 +1,5 @@
+Entity-Relationship Diagram (ERD)
+
 ┌─────────────────────────────────────────────────────────────────────┐
 │                          Django User (built-in)                     │
 │  id, username, email, password, is_staff, date_joined, ...         │
