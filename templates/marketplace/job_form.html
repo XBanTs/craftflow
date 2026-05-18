@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Job | CraftFlow{% endblock %}
+
+{% block content %}
+<h1>{{ action }} a Job</h1>
+
+<form method="post" enctype="multipart/form-data" class="job-form">
+    {% csrf_token %}
+
+    {% for field in form %}
+        <div class="form-group">
+            {{ field.label_tag }}
+            {{ field }}
+
+            {% if field.errors %}
+                <div class="field-errors">
+                    {% for error in field.errors %}
+                        <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">{{ action }} Job</button>
+    <a href="{% url 'job_list' %}" class="btn">Cancel</a>
+</form>
+{% endblock %}

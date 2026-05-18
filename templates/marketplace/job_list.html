@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Jobs | CraftFlow{% endblock %}
+
+{% block content %}
+<h1>Open Jobs</h1>
+<p>Browse open projects from clients looking for skilled freelancers like you.</p>
+
+{% if jobs %}
+    <div class="job-cards">
+        {% for job in jobs %}
+            {% include 'components/job_card.html' with job=job %}
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No open jobs at the moment. Check back soon!</p>
+{% endif %}
+{% endblock %}

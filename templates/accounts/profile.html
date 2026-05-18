@@ -17,7 +17,6 @@
             <h2>Skills</h2>
             {% if freelancer_profile.skills %}
                 <ul class="skills-list">
-                    {# Split the comma-separated skills string into a list #}
                     {% for skill in freelancer_profile.skills.split %}
                         <li>{{ skill }}</li>
                     {% endfor %}
@@ -48,7 +47,6 @@
     {% if request.user == profile_user %}
         <p>
             <a href="#" class="btn">Edit Profile</a>
-            {# We'll wire the edit profile URL later. #}
         </p>
     {% endif %}
 </div>

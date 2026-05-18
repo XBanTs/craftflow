@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ job.title }} | CraftFlow{% endblock %}
+
+{% block content %}
+<article class="job-detail">
+    <h1>{{ job.title }}</h1>
+
+    <div class="job-detail-meta">
+        <span>Budget: ${{ job.budget|floatformat:2 }}</span>
+        <span>Category: {{ job.get_category_display }}</span>
+        <span>Status: {{ job.get_status_display }}</span>
+        <span>Posted by: {{ job.client.username }}</span>
+        <span>Posted on: {{ job.created_at|date:"F j, Y" }}</span>
+    </div>
+
+    <div class="job-description">
+        {{ job.description|linebreaks }}
+    </div>
+
+    {% if job.attachment %}
+        <p>
+            <a href="{{ job.attachment.url }}">Download attachment</a>
+        </p>
+    {% endif %}
+
+    {% if request.user == job.client %}
+        <div class="job-actions">
+            <a href="{% url 'job_edit' job.pk %}" class="btn">Edit Job</a>
+            <a href="{% url 'job_delete' job.pk %}" class="btn btn-danger">Delete Job</a>
+        </div>
+    {% endif %}
+</article>
+
+<section class="bids-section">
+    <h2>Bids ({{ bids.count }})</h2>
+    {% if bids %}
+        {% for bid in bids %}
+            <div class="bid-card">
+                <strong>{{ bid.freelancer.username }}</strong> bid ${{ bid.amount|floatformat:2 }}
+                <span class="bid-status">({{ bid.get_status_display }})</span>
+                <p>{{ bid.proposal|truncatewords:40 }}</p>
+                <small>{{ bid.created_at|date:"M d, Y" }}</small>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No bids yet. Be the first to bid on this project!</p>
+    {% endif %}
+</section>
+{% endblock %}

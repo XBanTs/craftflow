@@ -16,7 +16,6 @@
                 {{ field.label_tag }}
                 {{ field }}
 
-                {# Display per-field errors #}
                 {% if field.errors %}
                     <div class="field-errors">
                         {% for error in field.errors %}
@@ -25,7 +24,6 @@
                     </div>
                 {% endif %}
 
-                {# Display help text (e.g., password requirements) #}
                 {% if field.help_text %}
                     <small class="help-text">{{ field.help_text }}</small>
                 {% endif %}

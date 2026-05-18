@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CraftFlow — Premium Freelance Marketplace{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Find the Right Talent, Right Now</h1>
+    <p>CraftFlow connects quality‑driven clients with skilled freelancers for projects that matter.</p>
+    {% if not request.user.is_authenticated %}
+        <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
+    {% else %}
+        <a href="{% url 'job_create' %}" class="btn btn-primary">Post a Job</a>
+    {% endif %}
+</section>
+
+{% if recent_jobs %}
+    <section class="recent-jobs">
+        <h2>Recent Open Jobs</h2>
+        <div class="job-cards">
+            {% for job in recent_jobs %}
+                {% include 'components/job_card.html' with job=job %}
+            {% endfor %}
+        </div>
+        <a href="{% url 'job_list' %}" class="btn">View All Jobs</a>
+    </section>
+{% else %}
+    <section class="empty-state">
+        <p>No jobs posted yet. Be the first to <a href="{% url 'job_create' %}">post a job</a>!</p>
+    </section>
+{% endif %}
+{% endblock %}
