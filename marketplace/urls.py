@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, api_views
 from django.shortcuts import render
 
 
@@ -12,7 +12,10 @@ urlpatterns = [
     path('jobs/<int:pk>/edit/', views.job_edit, name='job_edit'),
     path('jobs/<int:pk>/delete/', views.job_delete, name='job_delete'),
 
-    # API endpoints will go here in Phase 8
-    # path('api/jobs/', api_views.JobListCreateAPIView.as_view(), name='api_job_list'),
-    # ...
+    # API endpoints
+    path('api/jobs/', api_views.JobListCreateAPIView.as_view(), name='api_job_list'),
+    path('api/jobs/<int:pk>/', api_views.JobDetailAPIView.as_view(), name='api_job_detail'),
+    path('api/bids/', api_views.BidCreateAPIView.as_view(), name='api_bid_create'),
+    path('api/services/', api_views.ServiceListAPIView.as_view(), name='api_service_list'),
+    path('api/services/<int:pk>/', api_views.ServiceDetailAPIView.as_view(), name='api_service_detail'),
 ]
