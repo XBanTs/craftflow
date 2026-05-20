@@ -1,38 +1,27 @@
 <!-- craftflow/templates/components/job_card.html -->
+<!-- Reusable job card component — used in loops on job_list and home -->
+
 <article class="job-card">
     <h2>
         <a href="{% url 'job_detail' job.pk %}">
             {{ job.title }}
         </a>
-        {# job.pk is the primary key, used for the dynamic URL.
-           The 'job_detail' URL pattern will be defined as 'jobs/<int:pk>/'. #}
     </h2>
 
     <div class="job-meta">
         <span class="job-budget">${{ job.budget|floatformat:2 }}</span>
-        {# floatformat:2 ensures two decimal places, e.g., 500.00 #}
-
         <span class="job-category">{{ job.get_category_display }}</span>
-        {# get_category_display() is Django's auto-generated method for choice fields.
-           It returns the human-readable label ('Web Development') instead of the DB value ('web_dev'). #}
-
         <span class="job-status">{{ job.get_status_display }}</span>
     </div>
 
     <p class="job-snippet">
         {{ job.description|truncatewords:30 }}
-        {# truncatewords:30 shows the first 30 words, then "...".
-           This prevents the card from displaying a huge block of text. #}
     </p>
 
     <footer class="job-footer">
         <span class="job-author">
             Posted by {{ job.client.username }}
-            {# Accessing the related User object via the ForeignKey.
-               select_related('client') in the view ensures this is a single query,
-               not an additional query per job (the N+1 problem we discussed earlier). #}
         </span>
         <span class="job-date">{{ job.created_at|date:"M d, Y" }}</span>
-        {# The date filter formats the datetime: e.g., "Jan 15, 2026". #}
     </footer>
 </article>

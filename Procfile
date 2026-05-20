@@ -1,0 +1,1 @@
+web: gunicorn craftflow_config.wsgi:application

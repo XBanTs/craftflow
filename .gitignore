@@ -17,3 +17,6 @@ media/
 # IDE settings (optional but good practice)
 .vscode/
 .idea/
+
+# Staticfiles directory
+staticfiles/
