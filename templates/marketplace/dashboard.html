@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | CraftFlow{% endblock %}
+
+{% block content %}
+<h1>Welcome, {{ request.user.username }}</h1>
+
+<div class="stats-grid">
+    <div class="stat-card"><h3>Your Open Jobs</h3><p>{{ client_jobs.count }}</p></div>
+    <div class="stat-card"><h3>Active Bids</h3><p>{{ freelancer_bids.count }}</p></div>
+    <div class="stat-card"><h3>Total Platform Jobs</h3><p>{{ total_jobs }}</p></div>
+</div>
+
+{% if recommended_jobs %}
+<section class="recent-jobs">
+    <h2>Recommended for You</h2>
+    <div class="job-cards">
+        {% for job in recommended_jobs %}
+            {% include 'components/job_card.html' with job=job %}
+        {% endfor %}
+    </div>
+</section>
+{% else %}
+    <p>No recommendations right now.</p>
+{% endif %}
+{% endblock %}

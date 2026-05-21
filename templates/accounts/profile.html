@@ -45,9 +45,7 @@
     {% endif %}
 
     {% if request.user == profile_user %}
-        <p>
-            <a href="#" class="btn">Edit Profile</a>
-        </p>
-    {% endif %}
+    <p><a href="{% url 'profile_edit' profile_user.pk %}" class="btn">Edit Profile</a></p>
+{% endif %}
 </div>
 {% endblock %}

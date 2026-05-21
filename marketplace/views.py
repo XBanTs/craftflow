@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Job, Bid
 from .forms import JobForm
+from accounts.models import FreelancerProfile
 
 
 def home(request):
@@ -10,7 +11,13 @@ def home(request):
     Public homepage — shows latest open jobs and a call to action.
     """
     recent_jobs = Job.objects.filter(status='open').order_by('-created_at')[:6]
-    return render(request, 'marketplace/home.html', {'recent_jobs': recent_jobs})
+    open_jobs = Job.objects.filter(status='open').count()
+    freelancer_count = FreelancerProfile.objects.count()
+    return render(request, 'marketplace/home.html', {
+        'recent_jobs': recent_jobs,
+        'open_jobs': open_jobs,
+        'freelancer_count': freelancer_count,
+    })
 
 
 def job_list(request):
@@ -111,3 +118,25 @@ def job_delete(request, pk):
         return redirect('job_list')
 
     return render(request, 'marketplace/job_confirm_delete.html', {'job': job})
+
+
+@login_required
+def dashboard(request):
+    # As client: jobs you posted
+    client_jobs = Job.objects.filter(client=request.user).order_by('-created_at')
+    # As freelancer: your bids
+    freelancer_bids = Bid.objects.filter(freelancer=request.user).select_related('job').order_by('-created_at')
+    # Overall platform stats
+    total_jobs = Job.objects.count()
+    open_jobs = Job.objects.filter(status='open').count()
+    # Recommended jobs: latest open ones not posted by user
+    recommended_jobs = Job.objects.filter(status='open').exclude(client=request.user).order_by('-created_at')[:5]
+
+    context = {
+        'client_jobs': client_jobs,
+        'freelancer_bids': freelancer_bids,
+        'total_jobs': total_jobs,
+        'open_jobs': open_jobs,
+        'recommended_jobs': recommended_jobs,
+    }
+    return render(request, 'marketplace/dashboard.html', context)    

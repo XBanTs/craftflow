@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from .models import FreelancerProfile
 
 
 class CustomUserRegistrationForm(UserCreationForm):
@@ -40,3 +41,16 @@ class CustomUserRegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class FreelancerProfileEditForm(forms.ModelForm):
+    """
+    Form for editing a freelancer's profile (bio, skills, hourly rate, avatar).
+    """
+    class Meta:
+        model = FreelancerProfile
+        fields = ['bio', 'skills', 'hourly_rate', 'avatar']
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Introduce yourself and your expertise…'}),
+            'skills': forms.TextInput(attrs={'placeholder': 'e.g. Python, React, UI Design'}),
+        }

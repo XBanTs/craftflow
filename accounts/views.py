@@ -1,11 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .forms import CustomUserRegistrationForm
+from .forms import CustomUserRegistrationForm, FreelancerProfileEditForm
 from .models import FreelancerProfile
 
 
@@ -115,12 +115,6 @@ def profile_view(request, pk):
     Protected by @login_required: only authenticated users can view profiles.
     The 'pk' in the URL is the User's primary key.
     """
-    profile_user = User.objects.get(pk=pk)
-    # Note: We're using User.objects.get() here, not get_object_or_404.
-    # Since we'll wrap it in try/except or use get_object_or_404.
-    # We'll use get_object_or_404 for safety.
-
-    from django.shortcuts import get_object_or_404
     profile_user = get_object_or_404(User, pk=pk)
 
     # Try to get the FreelancerProfile. If it doesn't exist, profile is None.
@@ -166,3 +160,27 @@ def admin_dashboard(request):
         'total_users': total_users,
     }
     return render(request, 'accounts/admin_dashboard.html', context)
+
+
+@login_required
+def profile_edit_view(request, pk):
+    # Ensure users can only edit their own profile
+    if request.user.pk != pk:
+        messages.error(request, 'You can only edit your own profile.')
+        return redirect('profile', pk=request.user.pk)
+
+    # Get or create the freelancer profile
+    profile, created = FreelancerProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = FreelancerProfileEditForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully.')
+            return redirect('profile', pk=request.user.pk)
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = FreelancerProfileEditForm(instance=profile)
+
+    return render(request, 'accounts/profile_edit.html', {'form': form})
