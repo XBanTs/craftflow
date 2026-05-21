@@ -2,18 +2,20 @@
 <nav class="navbar">
     <div class="container navbar-inner">
         <!-- Brand -->
-        <a href="{% url 'home' %}" class="navbar-brand">
-            CraftFlow
-        </a>
+        <a href="{% url 'home' %}" class="navbar-brand">CraftFlow</a>
 
-        <!-- Links – different content based on login state -->
-        <div class="navbar-links">
+        <!-- Hamburger button (visible on mobile) -->
+        <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle navigation">
+            ☰
+        </button>
+
+        <!-- Links container -->
+        <div class="navbar-links" id="navbarLinks">
             {% if request.user.is_authenticated %}
                 <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
                 <a href="{% url 'job_list' %}" class="nav-link">Browse Jobs</a>
                 <a href="{% url 'job_create' %}" class="nav-link">Post a Job</a>
                 <a href="{% url 'profile' request.user.pk %}" class="nav-link">My Profile</a>
-
                 <form method="post" action="{% url 'logout' %}" class="logout-form">
                     {% csrf_token %}
                     <button type="submit" class="nav-link btn-logout">Logout</button>
@@ -25,3 +27,16 @@
         </div>
     </div>
 </nav>
+
+<script>
+    // Mobile navbar toggle
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.getElementById('navbarToggle');
+        const links = document.getElementById('navbarLinks');
+        if (toggleBtn && links) {
+            toggleBtn.addEventListener('click', function () {
+                links.classList.toggle('active');
+            });
+        }
+    });
+</script>
