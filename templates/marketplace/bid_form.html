@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Bid on {{ job.title }} | CraftFlow{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h1>Bid on: {{ job.title }}</h1>
+
+    <div class="job-summary">
+        <p><strong>Budget:</strong> ${{ job.budget|floatformat:2 }}</p>
+        <p><strong>Client:</strong> {{ job.client.username }}</p>
+        <p><strong>Category:</strong> {{ job.get_category_display }}</p>
+        <p>{{ job.description|truncatewords:50 }}</p>
+    </div>
+
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+
+                {% if field.errors %}
+                    <div class="field-errors">
+                        {% for error in field.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">Submit Bid</button>
+        <a href="{% url 'job_detail' job.pk %}" class="btn">Cancel</a>
+    </form>
+</div>
+{% endblock %}

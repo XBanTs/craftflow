@@ -32,6 +32,25 @@
     {% endif %}
 </article>
 
+<!-- Bidding Actions -->
+    {% if user.is_authenticated and job.client != user %}
+        {% if job.status == 'open' %}
+            {% if not user_has_bid %}
+                <div class="job-actions">
+                    <a href="{% url 'bid_create' job.pk %}" class="btn btn-primary">Bid on This Job</a>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    You have already submitted a bid for this job.
+                </div>
+            {% endif %}
+        {% else %}
+            <p class="text-muted">Bidding is closed – this job is {{ job.get_status_display }}.</p>
+        {% endif %}
+    {% elif user.is_authenticated and job.client == user %}
+        <p class="text-muted">You posted this job – you cannot bid on it.</p>
+    {% endif %}
+
 <section class="bids-section">
     <h2>Bids ({{ bids.count }})</h2>
     {% if bids %}

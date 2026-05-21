@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Job, Bid
-from .forms import JobForm
+from .forms import JobForm, BidForm
 from accounts.models import FreelancerProfile
 
 
@@ -36,11 +36,29 @@ def job_detail(request, pk):
     Fetches job and its bids (with related freelancer User) in one efficient query.
     """
     job = get_object_or_404(Job, pk=pk)
-    bids = job.bids.all().select_related('freelancer').order_by('-created_at')
-    return render(request, 'marketplace/job_detail.html', {
+
+    bids = (
+        job.bids.all()
+        .select_related('freelancer')
+        .order_by('-created_at')
+    )
+
+    # Check if the logged-in user has already placed a bid on this job
+    user_has_bid = False
+
+    if request.user.is_authenticated:
+        user_has_bid = Bid.objects.filter(
+            job=job,
+            freelancer=request.user
+        ).exists()
+
+    context = {
         'job': job,
         'bids': bids,
-    })
+        'user_has_bid': user_has_bid,
+    }
+
+    return render(request, 'marketplace/job_detail.html', context)
 
 
 @login_required
@@ -140,3 +158,36 @@ def dashboard(request):
         'recommended_jobs': recommended_jobs,
     }
     return render(request, 'marketplace/dashboard.html', context)    
+
+
+@login_required
+def bid_create(request, job_pk):
+    """
+    Allows a freelancer to submit a bid on a job.
+    - Only open jobs can receive bids.
+    - The bidder cannot be the job client.
+    - Only one bid per freelancer per job.
+    """
+    job = get_object_or_404(Job, pk=job_pk)
+    if job.status != 'open':
+        messages.error(request, 'This job is not open for bidding.')
+        return redirect('job_detail', pk=job_pk)
+    if job.client == request.user:
+        messages.error(request, 'You cannot bid on your own job.')
+        return redirect('job_detail', pk=job_pk)
+    if Bid.objects.filter(job=job, freelancer=request.user).exists():
+        messages.error(request, 'You have already submitted a bid for this job.')
+        return redirect('job_detail', pk=job_pk)
+    if request.method == 'POST':
+        form = BidForm(request.POST)
+        if form.is_valid():
+            bid = form.save(commit=False)
+            bid.job = job
+            bid.freelancer = request.user
+            bid.status = 'pending'
+            bid.save()
+            messages.success(request, 'Your bid has been submitted!')
+            return redirect('job_detail', pk=job_pk)
+    else:
+        form = BidForm()
+    return render(request, 'marketplace/bid_form.html', {'form': form, 'job': job})

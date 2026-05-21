@@ -424,6 +424,18 @@ a:hover {
     flex-grow: 1;
 }
 
+.job-summary {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+.text-muted {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
 .job-footer {
     display: flex;
     justify-content: space-between;

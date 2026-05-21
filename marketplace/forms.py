@@ -1,5 +1,6 @@
 from django import forms
-from .models import Job
+from .models import Job, Bid
+from django.core.validators import MinValueValidator
 
 
 class JobForm(forms.ModelForm):
@@ -37,3 +38,50 @@ class JobForm(forms.ModelForm):
         if title and len(title.strip()) < 5:
             raise forms.ValidationError('Title must be at least 5 characters long.')
         return title
+
+
+class BidForm(forms.ModelForm):
+    """
+    Form for submitting a bid on a job.
+    Mimics professional freelance platforms with bid amount and proposal.
+    """
+
+    amount = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)],
+        widget=forms.NumberInput(attrs={
+            'step': '0.01',
+            'placeholder': 'Your bid amount in USD'
+        })
+    )
+
+    proposal = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'rows': 5,
+            'placeholder': 'Explain why you are the best fit...'
+        })
+    )
+
+    # Optional future enhancement
+    # delivery_time = forms.CharField(
+    #     max_length=100,
+    #     required=False,
+    #     widget=forms.TextInput(attrs={
+    #         'placeholder': 'e.g. 2 weeks'
+    #     })
+    # )
+
+    class Meta:
+        model = Bid
+        fields = ['amount', 'proposal']
+
+    def clean_amount(self):
+        amount = self.cleaned_data.get('amount')
+
+        if amount and amount <= 0:
+            raise forms.ValidationError(
+                'Bid amount must be a positive number.'
+            )
+
+        return amount       

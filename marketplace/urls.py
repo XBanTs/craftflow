@@ -12,6 +12,7 @@ urlpatterns = [
     path('jobs/<int:pk>/edit/', views.job_edit, name='job_edit'),
     path('jobs/<int:pk>/delete/', views.job_delete, name='job_delete'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('jobs/<int:job_pk>/bid/', views.bid_create, name='bid_create'),
 
     # API endpoints
     path('api/jobs/', api_views.JobListCreateAPIView.as_view(), name='api_job_list'),
