@@ -239,8 +239,16 @@ def saved_jobs(request):
     """
     Show all jobs saved by the current user.
     """
-    saved_entries = SavedJob.objects.filter(user=request.user).select_related('job__client').order_by('-created_at')
-    # Extract the job objects and annotate with saved flag
-    jobs = [entry.job for entry in saved_entries]
+    saved_entries = SavedJob.objects.filter(
+        user=request.user
+    ).select_related('job__client').order_by('-created_at')
 
-    return render(request, 'marketplace/saved_jobs.html', {'jobs': jobs})    
+    # Extract the actual Job objects (already loaded)
+    saved_jobs_list = [entry.job for entry in saved_entries]
+
+    # Pass an empty saved_job_ids list because all displayed jobs are saved
+    context = {
+        'jobs': saved_jobs_list,
+        'saved_job_ids': [job.pk for job in saved_jobs_list],  # all are saved
+    }
+    return render(request, 'marketplace/saved_jobs.html', context)    
