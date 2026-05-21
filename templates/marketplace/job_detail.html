@@ -24,6 +24,26 @@
         </p>
     {% endif %}
 
+    <!-- Save Job Toggle -->
+    {% if user.is_authenticated and job.client != user %}
+        <div class="job-actions">
+            <form method="post" action="{% url 'save_job_toggle' job.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+
+                {% if is_saved %}
+                    <button type="submit" class="btn">
+                        🤍 Unsave
+                    </button>
+                {% else %}
+                    <button type="submit" class="btn btn-primary">
+                        ❤️ Save Job
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+    {% endif %}
+
     {% if request.user == job.client %}
         <div class="job-actions">
             <a href="{% url 'job_edit' job.pk %}" class="btn">Edit Job</a>
@@ -33,37 +53,62 @@
 </article>
 
 <!-- Bidding Actions -->
-    {% if user.is_authenticated and job.client != user %}
-        {% if job.status == 'open' %}
-            {% if not user_has_bid %}
-                <div class="job-actions">
-                    <a href="{% url 'bid_create' job.pk %}" class="btn btn-primary">Bid on This Job</a>
-                </div>
-            {% else %}
-                <div class="alert alert-info">
-                    You have already submitted a bid for this job.
-                </div>
-            {% endif %}
+{% if user.is_authenticated and job.client != user %}
+    
+    {% if job.status == 'open' %}
+        
+        {% if not user_has_bid %}
+            <div class="job-actions">
+                <a href="{% url 'bid_create' job.pk %}" class="btn btn-primary">
+                    Bid on This Job
+                </a>
+            </div>
         {% else %}
-            <p class="text-muted">Bidding is closed – this job is {{ job.get_status_display }}.</p>
+            <div class="alert alert-info">
+                You have already submitted a bid for this job.
+            </div>
         {% endif %}
-    {% elif user.is_authenticated and job.client == user %}
-        <p class="text-muted">You posted this job – you cannot bid on it.</p>
+    
+    {% else %}
+        <p class="text-muted">
+            Bidding is closed – this job is {{ job.get_status_display }}.
+        </p>
     {% endif %}
+
+{% elif user.is_authenticated and job.client == user %}
+    
+    <p class="text-muted">
+        You posted this job – you cannot bid on it.
+    </p>
+
+{% endif %}
 
 <section class="bids-section">
     <h2>Bids ({{ bids.count }})</h2>
+
     {% if bids %}
+        
         {% for bid in bids %}
             <div class="bid-card">
-                <strong>{{ bid.freelancer.username }}</strong> bid ${{ bid.amount|floatformat:2 }}
-                <span class="bid-status">({{ bid.get_status_display }})</span>
+                <strong>{{ bid.freelancer.username }}</strong>
+                bid ${{ bid.amount|floatformat:2 }}
+
+                <span class="bid-status">
+                    ({{ bid.get_status_display }})
+                </span>
+
                 <p>{{ bid.proposal|truncatewords:40 }}</p>
-                <small>{{ bid.created_at|date:"M d, Y" }}</small>
+
+                <small>
+                    {{ bid.created_at|date:"M d, Y" }}
+                </small>
             </div>
         {% endfor %}
+
     {% else %}
-        <p>No bids yet. Be the first to bid on this project!</p>
+        <p>
+            No bids yet. Be the first to bid on this project!
+        </p>
     {% endif %}
 </section>
 {% endblock %}

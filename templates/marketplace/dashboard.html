@@ -15,7 +15,7 @@
     <h2>Recommended for You</h2>
     <div class="job-cards">
         {% for job in recommended_jobs %}
-            {% include 'components/job_card.html' with job=job %}
+            {% include 'components/job_card.html' with job=job saved_job_ids=saved_job_ids %}
         {% endfor %}
     </div>
 </section>

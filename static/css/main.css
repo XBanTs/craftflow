@@ -499,6 +499,14 @@ a:hover {
     font-size: 0.85rem;
 }
 
+.bookmark {
+    font-size: 1.1rem;
+    cursor: default;
+}
+.bookmark.saved {
+    color: #e11d48;
+}
+
 /* -------------------------------------------------------
    Homepage Hero
    ------------------------------------------------------- */

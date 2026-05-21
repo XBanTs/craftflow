@@ -255,3 +255,30 @@ class Service(models.Model):
         ordering = ['-created_at']
         verbose_name = "Service"
         verbose_name_plural = "Services"        
+
+
+class SavedJob(models.Model):
+    """
+    Represents a user bookmarking a job for later viewing.
+    Unique together constraint prevents duplicate saves.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='saved_jobs'
+    )
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.CASCADE,
+        related_name='saved_by_users'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'job']
+        ordering = ['-created_at']
+        verbose_name = "Saved Job"
+        verbose_name_plural = "Saved Jobs"
+
+    def __str__(self):
+        return f"{self.user.username} saved '{self.job.title}'"        

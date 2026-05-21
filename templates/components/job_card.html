@@ -3,25 +3,28 @@
 
 <article class="job-card">
     <h2>
-        <a href="{% url 'job_detail' job.pk %}">
-            {{ job.title }}
-        </a>
+        <a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a>
     </h2>
 
     <div class="job-meta">
         <span class="job-budget">${{ job.budget|floatformat:2 }}</span>
         <span class="job-category">{{ job.get_category_display }}</span>
         <span class="job-status">{{ job.get_status_display }}</span>
+
+        <!-- Bookmark indicator -->
+        {% if request.user.is_authenticated and saved_job_ids is not None %}
+            {% if job.pk in saved_job_ids %}
+                <span class="bookmark saved" title="Saved">❤️</span>
+            {% else %}
+                <span class="bookmark" title="Not saved">🤍</span>
+            {% endif %}
+        {% endif %}
     </div>
 
-    <p class="job-snippet">
-        {{ job.description|truncatewords:30 }}
-    </p>
+    <p class="job-snippet">{{ job.description|truncatewords:30 }}</p>
 
     <footer class="job-footer">
-        <span class="job-author">
-            Posted by {{ job.client.username }}
-        </span>
+        <span class="job-author">Posted by {{ job.client.username }}</span>
         <span class="job-date">{{ job.created_at|date:"M d, Y" }}</span>
     </footer>
 </article>

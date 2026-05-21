@@ -24,8 +24,8 @@
         <h2>Recent Open Jobs</h2>
         <div class="job-cards">
             {% for job in recent_jobs %}
-                {% include 'components/job_card.html' with job=job %}
-            {% endfor %}
+            {% include 'components/job_card.html' with job=job saved_job_ids=saved_job_ids %}
+        {% endfor %}
         </div>
         <a href="{% url 'job_list' %}" class="btn">View All Jobs</a>
     </section>

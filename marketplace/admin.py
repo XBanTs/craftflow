@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Job, Bid, Review, Service
+from .models import Job, Bid, Review, Service, SavedJob
 
 
 @admin.register(Job)
@@ -52,3 +52,10 @@ class ServiceAdmin(admin.ModelAdmin):
     list_filter = ('category', 'created_at')
     search_fields = ('title', 'description', 'freelancer__username')
     raw_id_fields = ('freelancer',)
+
+
+@admin.register(SavedJob)
+class SavedJobAdmin(admin.ModelAdmin):
+    list_display = ('user', 'job', 'created_at')
+    search_fields = ('user__username', 'job__title')
+    raw_id_fields = ('user', 'job')    

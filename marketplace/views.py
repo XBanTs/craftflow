@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Job, Bid
+from .models import Job, Bid, SavedJob
 from .forms import JobForm, BidForm
 from accounts.models import FreelancerProfile
 
@@ -13,10 +13,14 @@ def home(request):
     recent_jobs = Job.objects.filter(status='open').order_by('-created_at')[:6]
     open_jobs = Job.objects.filter(status='open').count()
     freelancer_count = FreelancerProfile.objects.count()
+    saved_job_ids = []
+    if request.user.is_authenticated:
+        saved_job_ids = SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True)
     return render(request, 'marketplace/home.html', {
         'recent_jobs': recent_jobs,
         'open_jobs': open_jobs,
         'freelancer_count': freelancer_count,
+        'saved_job_ids': saved_job_ids,
     })
 
 
@@ -27,7 +31,13 @@ def job_list(request):
     job.client.username in the template.
     """
     jobs = Job.objects.filter(status='open').order_by('-created_at').select_related('client')
-    return render(request, 'marketplace/job_list.html', {'jobs': jobs})
+    saved_job_ids = []
+    if request.user.is_authenticated:
+        saved_job_ids = SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True)
+    return render(request, 'marketplace/job_list.html', {
+        'jobs': jobs,
+        'saved_job_ids': saved_job_ids,
+    })
 
 
 def job_detail(request, pk):
@@ -46,16 +56,21 @@ def job_detail(request, pk):
     # Check if the logged-in user has already placed a bid on this job
     user_has_bid = False
 
+    is_saved = False
+
     if request.user.is_authenticated:
         user_has_bid = Bid.objects.filter(
             job=job,
             freelancer=request.user
         ).exists()
 
+        is_saved = SavedJob.objects.filter(user=request.user, job=job).exists()
+
     context = {
         'job': job,
         'bids': bids,
         'user_has_bid': user_has_bid,
+        'is_saved': is_saved,
     }
 
     return render(request, 'marketplace/job_detail.html', context)
@@ -140,15 +155,14 @@ def job_delete(request, pk):
 
 @login_required
 def dashboard(request):
-    # As client: jobs you posted
     client_jobs = Job.objects.filter(client=request.user).order_by('-created_at')
-    # As freelancer: your bids
     freelancer_bids = Bid.objects.filter(freelancer=request.user).select_related('job').order_by('-created_at')
-    # Overall platform stats
     total_jobs = Job.objects.count()
     open_jobs = Job.objects.filter(status='open').count()
-    # Recommended jobs: latest open ones not posted by user
     recommended_jobs = Job.objects.filter(status='open').exclude(client=request.user).order_by('-created_at')[:5]
+
+    saved_count = SavedJob.objects.filter(user=request.user).count()
+    saved_job_ids = SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True)
 
     context = {
         'client_jobs': client_jobs,
@@ -156,6 +170,8 @@ def dashboard(request):
         'total_jobs': total_jobs,
         'open_jobs': open_jobs,
         'recommended_jobs': recommended_jobs,
+        'saved_count': saved_count,
+        'saved_job_ids': saved_job_ids,
     }
     return render(request, 'marketplace/dashboard.html', context)    
 
@@ -191,3 +207,40 @@ def bid_create(request, job_pk):
     else:
         form = BidForm()
     return render(request, 'marketplace/bid_form.html', {'form': form, 'job': job})
+
+
+@login_required
+def save_job_toggle(request, job_pk):
+    """
+    Toggle: if the user hasn't saved the job, save it.
+    If they already saved it, unsave it.
+    """
+    job = get_object_or_404(Job, pk=job_pk)
+    user = request.user
+
+    # Try to find an existing saved record
+    saved = SavedJob.objects.filter(user=user, job=job).first()
+    if saved:
+        saved.delete()
+        messages.success(request, f'Removed "{job.title}" from saved jobs.')
+    else:
+        SavedJob.objects.create(user=user, job=job)
+        messages.success(request, f'Saved "{job.title}" for later.')
+
+    # Redirect back to the previous page (or job detail)
+    next_url = request.GET.get('next', '')
+    if next_url:
+        return redirect(next_url)
+    return redirect('job_detail', pk=job_pk)
+
+
+@login_required
+def saved_jobs(request):
+    """
+    Show all jobs saved by the current user.
+    """
+    saved_entries = SavedJob.objects.filter(user=request.user).select_related('job__client').order_by('-created_at')
+    # Extract the job objects and annotate with saved flag
+    jobs = [entry.job for entry in saved_entries]
+
+    return render(request, 'marketplace/saved_jobs.html', {'jobs': jobs})    

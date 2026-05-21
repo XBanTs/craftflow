@@ -15,6 +15,7 @@
                 <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
                 <a href="{% url 'job_list' %}" class="nav-link">Browse Jobs</a>
                 <a href="{% url 'job_create' %}" class="nav-link">Post a Job</a>
+                <a href="{% url 'saved_jobs' %}" class="nav-link">Saved Jobs</a>
                 <a href="{% url 'profile' request.user.pk %}" class="nav-link">My Profile</a>
                 <form method="post" action="{% url 'logout' %}" class="logout-form">
                     {% csrf_token %}
