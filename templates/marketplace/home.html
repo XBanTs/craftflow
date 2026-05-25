@@ -1,37 +1,130 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}CraftFlow — Premium Freelance Marketplace{% endblock %}
+{% block title %}
+    CraftFlow — Premium Freelance Marketplace
+{% endblock %}
 
 {% block content %}
+
+<!-- =========================================================
+     HERO SECTION
+========================================================= -->
 <section class="hero">
-    <h1>Find the Right Talent, Right Now</h1>
-    <p>CraftFlow connects quality‑driven clients with skilled freelancers for projects that matter.</p>
-    {% if not request.user.is_authenticated %}
-        <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
-    {% else %}
-        <a href="{% url 'job_create' %}" class="btn btn-primary">Post a Job</a>
-    {% endif %}
+    <div class="container">
+
+        <h1>
+            Find the Right Talent, Right Now
+        </h1>
+
+        <p>
+            CraftFlow connects quality driven clients with skilled freelancers
+            for projects that truly matter. Hire experts, collaborate smoothly,
+            and bring your ideas to life faster.
+        </p>
+
+        {% if not request.user.is_authenticated %}
+            <a href="{% url 'register' %}" class="btn btn-primary">
+                Get Started
+            </a>
+        {% else %}
+            <a href="{% url 'job_create' %}" class="btn btn-primary">
+                Post a Job
+            </a>
+        {% endif %}
+
+    </div>
 </section>
 
-<section class="stats-bar">
-    <div><strong>Open Jobs:</strong> {{ open_jobs }}</div>
-    <div><strong>Active Freelancers:</strong> {{ freelancer_count }}</div>
+<!-- =========================================================
+     STATS BAR
+========================================================= -->
+<section class="container">
+    <div class="stats-bar reveal">
+
+        <div>
+            <strong>{{ open_jobs }}</strong>
+            <span>Open Jobs</span>
+        </div>
+
+        <div>
+            <strong>{{ freelancer_count }}</strong>
+            <span>Active Freelancers</span>
+        </div>
+
+    </div>
 </section>
 
-{% if recent_jobs %}
-    <section class="recent-jobs">
-        <h2>Recent Open Jobs</h2>
+<!-- =========================================================
+     RECENT JOBS
+========================================================= -->
+<section class="container recent-jobs reveal">
+
+    {% if recent_jobs %}
+
+        <div class="section-header">
+            <div>
+                <h2>Recent Open Jobs</h2>
+                <p class="text-muted">
+                    Discover opportunities posted by clients looking for talented freelancers.
+                </p>
+            </div>
+
+            <a href="{% url 'job_list' %}" class="btn">
+                View All Jobs
+            </a>
+        </div>
+
         <div class="job-cards">
             {% for job in recent_jobs %}
-            {% include 'components/job_card.html' with job=job saved_job_ids=saved_job_ids %}
-        {% endfor %}
+                {% include 'components/job_card.html' with job=job saved_job_ids=saved_job_ids %}
+            {% endfor %}
         </div>
-        <a href="{% url 'job_list' %}" class="btn">View All Jobs</a>
-    </section>
-{% else %}
-    <section class="empty-state">
-        <p>No jobs posted yet. Be the first to <a href="{% url 'job_create' %}">post a job</a>!</p>
-    </section>
-{% endif %}
+
+    {% else %}
+
+        <!-- =========================================================
+             EMPTY STATE
+        ========================================================= -->
+        <section class="empty-state">
+
+            <h2>No Jobs Posted Yet</h2>
+
+            <p>
+                Be the first to post a project and connect with talented freelancers.
+            </p>
+
+            <a href="{% url 'job_create' %}" class="btn btn-primary">
+                Post a Job
+            </a>
+
+        </section>
+
+    {% endif %}
+
+</section>
+
+<!-- =========================================================
+     OPTIONAL SCROLL REVEAL SCRIPT
+========================================================= -->
+<script>
+    const revealElements = document.querySelectorAll('.reveal');
+
+    function revealOnScroll() {
+        revealElements.forEach((element) => {
+            const windowHeight = window.innerHeight;
+            const revealTop = element.getBoundingClientRect().top;
+            const revealPoint = 100;
+
+            if (revealTop < windowHeight - revealPoint) {
+                element.classList.add('visible');
+            }
+        });
+    }
+
+    window.addEventListener('scroll', revealOnScroll);
+
+    revealOnScroll();
+</script>
+
 {% endblock %}

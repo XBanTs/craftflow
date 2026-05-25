@@ -1,25 +1,161 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard | CraftFlow{% endblock %}
+
+{% block title %}
+    Dashboard | CraftFlow
+{% endblock %}
 
 {% block content %}
-<h1>Welcome, {{ request.user.username }}</h1>
 
-<div class="stats-grid">
-    <div class="stat-card"><h3>Your Open Jobs</h3><p>{{ client_jobs.count }}</p></div>
-    <div class="stat-card"><h3>Active Bids</h3><p>{{ freelancer_bids.count }}</p></div>
-    <div class="stat-card"><h3>Total Platform Jobs</h3><p>{{ total_jobs }}</p></div>
-</div>
+<!-- =========================================================
+     DASHBOARD HEADER
+========================================================= -->
+<section class="dashboard-header reveal">
 
+    <div class="dashboard-header-content">
+
+        <div>
+            <h1>
+                Welcome back, {{ request.user.username }}
+            </h1>
+
+            <p class="text-muted">
+                Track your projects, bids, and opportunities all in one place.
+            </p>
+        </div>
+
+        <div class="dashboard-actions">
+            <a href="{% url 'job_create' %}" class="btn btn-primary">
+                Post a Job
+            </a>
+
+            <a href="{% url 'job_list' %}" class="btn">
+                Browse Jobs
+            </a>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- =========================================================
+     STATS GRID
+========================================================= -->
+<section class="stats-grid reveal">
+
+    <div class="stat-card">
+        <h3>Your Open Jobs</h3>
+
+        <p>
+            {{ client_jobs.count }}
+        </p>
+
+        <span class="text-muted">
+            Jobs currently accepting proposals
+        </span>
+    </div>
+
+    <div class="stat-card">
+        <h3>Active Bids</h3>
+
+        <p>
+            {{ freelancer_bids.count }}
+        </p>
+
+        <span class="text-muted">
+            Ongoing freelance applications
+        </span>
+    </div>
+
+    <div class="stat-card">
+        <h3>Total Platform Jobs</h3>
+
+        <p>
+            {{ total_jobs }}
+        </p>
+
+        <span class="text-muted">
+            Opportunities available marketplace wide
+        </span>
+    </div>
+
+</section>
+
+<!-- =========================================================
+     RECOMMENDED JOBS
+========================================================= -->
 {% if recommended_jobs %}
-<section class="recent-jobs">
-    <h2>Recommended for You</h2>
+
+<section class="recent-jobs reveal">
+
+    <div class="section-header">
+
+        <div>
+            <h2>Recommended for You</h2>
+
+            <p class="text-muted">
+                Personalized opportunities based on your activity and skills.
+            </p>
+        </div>
+
+        <a href="{% url 'job_list' %}" class="btn">
+            Explore More Jobs
+        </a>
+
+    </div>
+
     <div class="job-cards">
+
         {% for job in recommended_jobs %}
             {% include 'components/job_card.html' with job=job saved_job_ids=saved_job_ids %}
         {% endfor %}
+
     </div>
+
 </section>
+
 {% else %}
-    <p>No recommendations right now.</p>
+
+<!-- =========================================================
+     EMPTY RECOMMENDATIONS
+========================================================= -->
+<section class="empty-state reveal">
+
+    <h2>No Recommendations Yet</h2>
+
+    <p>
+        We do not have personalized recommendations for you right now.
+        Explore available jobs and interact more with the platform to improve recommendations.
+    </p>
+
+    <a href="{% url 'job_list' %}" class="btn btn-primary">
+        Browse Jobs
+    </a>
+
+</section>
+
 {% endif %}
+
+<!-- =========================================================
+     OPTIONAL SCROLL REVEAL SCRIPT
+========================================================= -->
+<script>
+    const revealElements = document.querySelectorAll('.reveal');
+
+    function revealOnScroll() {
+        revealElements.forEach((element) => {
+            const windowHeight = window.innerHeight;
+            const revealTop = element.getBoundingClientRect().top;
+            const revealPoint = 100;
+
+            if (revealTop < windowHeight - revealPoint) {
+                element.classList.add('visible');
+            }
+        });
+    }
+
+    window.addEventListener('scroll', revealOnScroll);
+
+    revealOnScroll();
+</script>
+
 {% endblock %}

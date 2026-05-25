@@ -12,6 +12,11 @@
         {% block title %}CraftFlow{% endblock %}
     </title>
 
+     <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Custom CSS (our main stylesheet) -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
@@ -55,6 +60,32 @@
             });
         });
     </script>
+
+        <!-- Scroll Reveal + Navbar Toggle -->
+    <script>
+        // Mobile navbar toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('navbarToggle');
+            const links = document.getElementById('navbarLinks');
+            if (toggle && links) {
+                toggle.addEventListener('click', () => links.classList.toggle('active'));
+            }
+
+            // Scroll reveal
+            const revealElements = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            revealElements.forEach(el => observer.observe(el));
+        });
+    </script>
+    
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

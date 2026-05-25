@@ -5,7 +5,7 @@
 <p>Browse open projects from clients looking for skilled freelancers like you.</p>
 
 {% if jobs %}
-    <div class="job-cards">
+    <div class="job-cards reveal">
         {% for job in jobs %}
             {% include 'components/job_card.html' with job=job saved_job_ids=saved_job_ids %}
         {% endfor %}
