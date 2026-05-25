@@ -1,0 +1,812 @@
+[
+{
+  "model": "auth.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$lrujNApNvoAT2XeeZbamcD$ND7BQDHi9eBhqk7jjiv0jNrA5K3cUo+ZYiThlzkQ/dI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "alice_startup",
+    "first_name": "",
+    "last_name": "",
+    "email": "alice@startup.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-05-21T11:03:04.589Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$KwPgtfoiXmepdzS1529xWy$nyQXpt69eWjCUXG4EEKVh8pMKlinnkOV1MHHG8SWZkc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "bob_agency",
+    "first_name": "",
+    "last_name": "",
+    "email": "bob@agency.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-05-21T11:03:08.053Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$KOfqpyrzSwIhSgIDZcO4GA$OOfm8l0UBOSuZRSzXyPeIF0H57FW+uHR0Jl+wO0A1Oo=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "clara_found",
+    "first_name": "",
+    "last_name": "",
+    "email": "clara@foundation.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-05-21T11:03:10.471Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$1AUSrXZhaon0aYEkSXOJf2$Ch9ujZfWhb9s26Dnt6e20R3790tz1pxljnusDvPF02o=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "dave_product",
+    "first_name": "",
+    "last_name": "",
+    "email": "dave@product.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-05-21T11:03:12.887Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$CwDY3s6AlTXXDHNTu09Dsz$Z3HiMXejeuggXvWLz0yAES7Hg4MCutFauPVSxAMZgGQ=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "frank_python",
+    "first_name": "",
+    "last_name": "",
+    "email": "frank_python@craftflow.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-05-21T11:03:15.444Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$wHbd0CRCjJAScEQ5ddu01F$KpeomTSo4T8ESJfHnyGiqC0r2MTCxu9D8JBGfQ9DPxE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "grace_design",
+    "first_name": "",
+    "last_name": "",
+    "email": "grace_design@craftflow.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-05-21T11:03:17.912Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$eA3igAY6Gg29aFLDbVi8e8$+u7Suu6AZ4FDFa695WikipaLCczCcpzhhl0RmFO4+vg=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "henry_writer",
+    "first_name": "",
+    "last_name": "",
+    "email": "henry_writer@craftflow.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-05-21T11:03:22.245Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$wXqPjCs0TD2Gt8PMaIfnsq$u2wawlKiyzLjiiMCBc1Hxf3Iu2yJNmL4y+nxnVTMfLY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "irina_data",
+    "first_name": "",
+    "last_name": "",
+    "email": "irina_data@craftflow.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-05-21T11:03:26.825Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 10,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$BWi777cP1ak6T6Mvo4W6Nu$cDt6R1t0Z8aBQCWLcpKpjPyD4ow77pR8D6EpTsQXPEU=",
+    "last_login": "2026-05-21T11:53:27.662Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@craftflow.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-05-21T11:45:21.440Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.freelancerprofile",
+  "pk": 1,
+  "fields": {
+    "user": 6,
+    "bio": "Experienced Python specialist.",
+    "skills": "Python, Django, REST APIs, PostgreSQL",
+    "hourly_rate": "35.00",
+    "avatar": "",
+    "created_at": "2026-05-21T11:03:17.898Z"
+  }
+},
+{
+  "model": "accounts.freelancerprofile",
+  "pk": 2,
+  "fields": {
+    "user": 7,
+    "bio": "Experienced UI/UX Design specialist.",
+    "skills": "UI/UX Design, Figma, Prototyping",
+    "hourly_rate": "50.00",
+    "avatar": "",
+    "created_at": "2026-05-21T11:03:22.234Z"
+  }
+},
+{
+  "model": "accounts.freelancerprofile",
+  "pk": 3,
+  "fields": {
+    "user": 8,
+    "bio": "Experienced Technical Writing specialist.",
+    "skills": "Technical Writing, Documentation, SEO",
+    "hourly_rate": "75.00",
+    "avatar": "",
+    "created_at": "2026-05-21T11:03:26.815Z"
+  }
+},
+{
+  "model": "accounts.freelancerprofile",
+  "pk": 4,
+  "fields": {
+    "user": 9,
+    "bio": "Experienced Data Analysis specialist.",
+    "skills": "Data Analysis, Pandas, SQL, Tableau",
+    "hourly_rate": "35.00",
+    "avatar": "",
+    "created_at": "2026-05-21T11:03:30.164Z"
+  }
+},
+{
+  "model": "accounts.freelancerprofile",
+  "pk": 5,
+  "fields": {
+    "user": 10,
+    "bio": "",
+    "skills": "",
+    "hourly_rate": null,
+    "avatar": "",
+    "created_at": "2026-05-21T11:53:46.308Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 2,
+  "fields": {
+    "title": "Build a REST API backend for mobile app",
+    "description": "We need a developer to build a secure REST API using Django or Node.js. Must include JWT auth and PostgreSQL integration.",
+    "budget": "2000.00",
+    "status": "in_progress",
+    "category": "web_dev",
+    "client": 4,
+    "attachment": "",
+    "created_at": "2026-05-21T11:03:30.174Z",
+    "updated_at": "2026-05-21T11:03:30.250Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 3,
+  "fields": {
+    "title": "Design a modern SaaS dashboard UI",
+    "description": "Looking for a UI/UX designer to create a clean, modern dashboard for our B2B SaaS product. Figma files required.",
+    "budget": "1500.00",
+    "status": "completed",
+    "category": "ui_ux",
+    "client": 4,
+    "attachment": "",
+    "created_at": "2026-05-21T11:03:30.180Z",
+    "updated_at": "2026-05-21T11:03:30.253Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 4,
+  "fields": {
+    "title": "Write technical documentation for API product",
+    "description": "We need a technical writer to produce comprehensive API docs (OpenAPI) and user guides.",
+    "budget": "800.00",
+    "status": "open",
+    "category": "writing",
+    "client": 3,
+    "attachment": "",
+    "created_at": "2026-05-21T11:03:30.183Z",
+    "updated_at": "2026-05-21T11:03:30.183Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 5,
+  "fields": {
+    "title": "Data analysis & visualization for sales report",
+    "description": "Analyse our Q1 sales data and produce an interactive Tableau dashboard with insights.",
+    "budget": "1200.00",
+    "status": "open",
+    "category": "data_science",
+    "client": 5,
+    "attachment": "",
+    "created_at": "2026-05-21T11:03:30.201Z",
+    "updated_at": "2026-05-21T11:03:30.201Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 6,
+  "fields": {
+    "title": "Fix critical bugs in Django e‑commerce site",
+    "description": "Our production Django site has several performance and payment integration bugs. Need immediate help.",
+    "budget": "2500.00",
+    "status": "open",
+    "category": "web_dev",
+    "client": 5,
+    "attachment": "",
+    "created_at": "2026-05-21T11:03:30.238Z",
+    "updated_at": "2026-05-21T11:03:30.238Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 7,
+  "fields": {
+    "title": "Redesign landing page & branding kit",
+    "description": "We want a complete visual overhaul of our landing page plus a small brand identity package.",
+    "budget": "1000.00",
+    "status": "open",
+    "category": "ui_ux",
+    "client": 4,
+    "attachment": "",
+    "created_at": "2026-05-21T11:03:30.242Z",
+    "updated_at": "2026-05-21T11:03:30.242Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 8,
+  "fields": {
+    "title": "SEO audit and content optimisation",
+    "description": "Perform a full SEO audit on our blog and optimise 20 articles for target keywords.",
+    "budget": "600.00",
+    "status": "open",
+    "category": "marketing",
+    "client": 5,
+    "attachment": "",
+    "created_at": "2026-05-21T11:03:30.245Z",
+    "updated_at": "2026-05-21T11:03:30.245Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 9,
+  "fields": {
+    "title": "Build a Telegram bot for customer support",
+    "description": "Develop a Telegram bot that integrates with our helpdesk API and provides automatic replies.",
+    "budget": "1800.00",
+    "status": "open",
+    "category": "web_dev",
+    "client": 2,
+    "attachment": "",
+    "created_at": "2026-05-21T11:03:30.248Z",
+    "updated_at": "2026-05-21T11:03:30.248Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 10,
+  "fields": {
+    "title": "Build a REST API backend for mobile app",
+    "description": "We need a developer to build a secure REST API using Django or Node.js. Must include JWT auth and PostgreSQL integration.",
+    "budget": "2000.00",
+    "status": "in_progress",
+    "category": "web_dev",
+    "client": 5,
+    "attachment": "",
+    "created_at": "2026-05-21T11:45:24.019Z",
+    "updated_at": "2026-05-21T11:45:24.051Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 11,
+  "fields": {
+    "title": "Design a modern SaaS dashboard UI",
+    "description": "Looking for a UI/UX designer to create a clean, modern dashboard for our B2B SaaS product. Figma files required.",
+    "budget": "1500.00",
+    "status": "completed",
+    "category": "ui_ux",
+    "client": 2,
+    "attachment": "",
+    "created_at": "2026-05-21T11:45:24.027Z",
+    "updated_at": "2026-05-21T11:45:24.055Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 12,
+  "fields": {
+    "title": "Write technical documentation for API product",
+    "description": "We need a technical writer to produce comprehensive API docs (OpenAPI) and user guides.",
+    "budget": "800.00",
+    "status": "open",
+    "category": "writing",
+    "client": 2,
+    "attachment": "",
+    "created_at": "2026-05-21T11:45:24.030Z",
+    "updated_at": "2026-05-21T11:45:24.030Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 13,
+  "fields": {
+    "title": "Data analysis & visualization for sales report",
+    "description": "Analyse our Q1 sales data and produce an interactive Tableau dashboard with insights.",
+    "budget": "1200.00",
+    "status": "open",
+    "category": "data_science",
+    "client": 3,
+    "attachment": "",
+    "created_at": "2026-05-21T11:45:24.035Z",
+    "updated_at": "2026-05-21T11:45:24.035Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 14,
+  "fields": {
+    "title": "Fix critical bugs in Django e‑commerce site",
+    "description": "Our production Django site has several performance and payment integration bugs. Need immediate help.",
+    "budget": "2500.00",
+    "status": "open",
+    "category": "web_dev",
+    "client": 3,
+    "attachment": "",
+    "created_at": "2026-05-21T11:45:24.039Z",
+    "updated_at": "2026-05-21T11:45:24.039Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 15,
+  "fields": {
+    "title": "Redesign landing page & branding kit",
+    "description": "We want a complete visual overhaul of our landing page plus a small brand identity package.",
+    "budget": "1000.00",
+    "status": "open",
+    "category": "ui_ux",
+    "client": 2,
+    "attachment": "",
+    "created_at": "2026-05-21T11:45:24.043Z",
+    "updated_at": "2026-05-21T11:45:24.043Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 16,
+  "fields": {
+    "title": "SEO audit and content optimisation",
+    "description": "Perform a full SEO audit on our blog and optimise 20 articles for target keywords.",
+    "budget": "600.00",
+    "status": "open",
+    "category": "marketing",
+    "client": 4,
+    "attachment": "",
+    "created_at": "2026-05-21T11:45:24.046Z",
+    "updated_at": "2026-05-21T11:45:24.046Z"
+  }
+},
+{
+  "model": "marketplace.job",
+  "pk": 17,
+  "fields": {
+    "title": "Build a Telegram bot for customer support",
+    "description": "Develop a Telegram bot that integrates with our helpdesk API and provides automatic replies.",
+    "budget": "1800.00",
+    "status": "open",
+    "category": "web_dev",
+    "client": 3,
+    "attachment": "",
+    "created_at": "2026-05-21T11:45:24.049Z",
+    "updated_at": "2026-05-21T11:45:24.049Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 1,
+  "fields": {
+    "job": 2,
+    "freelancer": 8,
+    "amount": "598.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:03:30.257Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 2,
+  "fields": {
+    "job": 2,
+    "freelancer": 6,
+    "amount": "1745.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:03:30.264Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 3,
+  "fields": {
+    "job": 2,
+    "freelancer": 9,
+    "amount": "1885.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "accepted",
+    "created_at": "2026-05-21T11:03:30.267Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 4,
+  "fields": {
+    "job": 4,
+    "freelancer": 6,
+    "amount": "894.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:03:30.270Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 5,
+  "fields": {
+    "job": 5,
+    "freelancer": 6,
+    "amount": "612.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:03:30.274Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 6,
+  "fields": {
+    "job": 5,
+    "freelancer": 9,
+    "amount": "818.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:03:30.277Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 7,
+  "fields": {
+    "job": 5,
+    "freelancer": 8,
+    "amount": "866.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:03:30.281Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 8,
+  "fields": {
+    "job": 6,
+    "freelancer": 6,
+    "amount": "423.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:03:30.284Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 9,
+  "fields": {
+    "job": 7,
+    "freelancer": 6,
+    "amount": "584.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:03:30.286Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 10,
+  "fields": {
+    "job": 10,
+    "freelancer": 6,
+    "amount": "1847.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:45:24.059Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 11,
+  "fields": {
+    "job": 10,
+    "freelancer": 8,
+    "amount": "1813.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "accepted",
+    "created_at": "2026-05-21T11:45:24.065Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 12,
+  "fields": {
+    "job": 12,
+    "freelancer": 7,
+    "amount": "1671.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:45:24.068Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 13,
+  "fields": {
+    "job": 12,
+    "freelancer": 9,
+    "amount": "1333.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:45:24.070Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 14,
+  "fields": {
+    "job": 12,
+    "freelancer": 8,
+    "amount": "1815.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:45:24.073Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 15,
+  "fields": {
+    "job": 13,
+    "freelancer": 6,
+    "amount": "1149.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:45:24.077Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 16,
+  "fields": {
+    "job": 14,
+    "freelancer": 7,
+    "amount": "1119.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:45:24.080Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 17,
+  "fields": {
+    "job": 15,
+    "freelancer": 6,
+    "amount": "1192.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:45:24.082Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 18,
+  "fields": {
+    "job": 15,
+    "freelancer": 9,
+    "amount": "508.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:45:24.084Z"
+  }
+},
+{
+  "model": "marketplace.bid",
+  "pk": 19,
+  "fields": {
+    "job": 15,
+    "freelancer": 7,
+    "amount": "989.00",
+    "proposal": "I can deliver this with excellence. My approach involves ...",
+    "status": "pending",
+    "created_at": "2026-05-21T11:45:24.087Z"
+  }
+},
+{
+  "model": "marketplace.review",
+  "pk": 1,
+  "fields": {
+    "job": 3,
+    "reviewer": 4,
+    "reviewee": 6,
+    "rating": 5,
+    "comment": "Excellent work, delivered ahead of schedule!",
+    "created_at": "2026-05-21T11:03:30.316Z"
+  }
+},
+{
+  "model": "marketplace.review",
+  "pk": 2,
+  "fields": {
+    "job": 11,
+    "reviewer": 2,
+    "reviewee": 6,
+    "rating": 5,
+    "comment": "Excellent work, delivered ahead of schedule!",
+    "created_at": "2026-05-21T11:45:24.104Z"
+  }
+},
+{
+  "model": "marketplace.service",
+  "pk": 1,
+  "fields": {
+    "freelancer": 6,
+    "title": "Python Backend Development",
+    "description": "Professional Custom API Development service.",
+    "price": "100.00",
+    "category": "web_dev",
+    "created_at": "2026-05-21T11:03:30.344Z"
+  }
+},
+{
+  "model": "marketplace.service",
+  "pk": 2,
+  "fields": {
+    "freelancer": 7,
+    "title": "Technical Documentation",
+    "description": "Professional Technical Documentation service.",
+    "price": "100.00",
+    "category": "data_science",
+    "created_at": "2026-05-21T11:03:30.357Z"
+  }
+},
+{
+  "model": "marketplace.service",
+  "pk": 3,
+  "fields": {
+    "freelancer": 8,
+    "title": "Custom API Development",
+    "description": "Professional Modern UI/UX Design service.",
+    "price": "50.00",
+    "category": "data_science",
+    "created_at": "2026-05-21T11:03:30.360Z"
+  }
+},
+{
+  "model": "marketplace.service",
+  "pk": 4,
+  "fields": {
+    "freelancer": 9,
+    "title": "Data Analysis & Reporting",
+    "description": "Professional Technical Documentation service.",
+    "price": "100.00",
+    "category": "ui_ux",
+    "created_at": "2026-05-21T11:03:30.366Z"
+  }
+},
+{
+  "model": "marketplace.service",
+  "pk": 5,
+  "fields": {
+    "freelancer": 6,
+    "title": "Custom API Development",
+    "description": "Professional Technical Documentation service.",
+    "price": "50.00",
+    "category": "web_dev",
+    "created_at": "2026-05-21T11:45:24.109Z"
+  }
+},
+{
+  "model": "marketplace.service",
+  "pk": 6,
+  "fields": {
+    "freelancer": 7,
+    "title": "Data Analysis & Reporting",
+    "description": "Professional Data Analysis & Reporting service.",
+    "price": "100.00",
+    "category": "web_dev",
+    "created_at": "2026-05-21T11:45:24.113Z"
+  }
+},
+{
+  "model": "marketplace.service",
+  "pk": 7,
+  "fields": {
+    "freelancer": 8,
+    "title": "Python Backend Development",
+    "description": "Professional Modern UI/UX Design service.",
+    "price": "150.00",
+    "category": "ui_ux",
+    "created_at": "2026-05-21T11:45:24.116Z"
+  }
+},
+{
+  "model": "marketplace.service",
+  "pk": 8,
+  "fields": {
+    "freelancer": 9,
+    "title": "Custom API Development",
+    "description": "Professional Modern UI/UX Design service.",
+    "price": "150.00",
+    "category": "writing",
+    "created_at": "2026-05-21T11:45:24.118Z"
+  }
+}
+]
