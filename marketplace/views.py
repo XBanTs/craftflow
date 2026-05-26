@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import models
-from django.db.models import Sum, Avg
+from django.db.models import Q, Sum, Avg
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Job, Bid, SavedJob, Review
@@ -27,26 +27,67 @@ def home(request):
 
 
 def job_list(request):
-    """
-    Public list of all open jobs, newest first.
-    Uses select_related('client') to avoid N+1 queries when accessing
-    job.client.username in the template.
-    """
-    jobs = Job.objects.filter(
-        status__in=['open', 'in_progress']
-    ).order_by('-created_at').select_related('client')
+    # Base queryset: only active jobs
+    jobs = Job.objects.filter(status__in=['open', 'in_progress'])
 
+    # --- Filtering ---
+    query = request.GET.get('q', '')
+    category = request.GET.get('category', '')
+    budget_min = request.GET.get('budget_min', '')
+    budget_max = request.GET.get('budget_max', '')
+    sort = request.GET.get('sort', '-created_at')  # default newest
+
+    # Text search
+    if query:
+        from django.db.models import Q
+        jobs = jobs.filter(Q(title__icontains=query) | Q(description__icontains=query))
+
+    # Category filter
+    if category:
+        jobs = jobs.filter(category=category)
+
+    # Budget range filter
+    if budget_min:
+        try:
+            min_val = float(budget_min)
+            jobs = jobs.filter(budget__gte=min_val)
+        except ValueError:
+            pass
+    if budget_max:
+        try:
+            max_val = float(budget_max)
+            jobs = jobs.filter(budget__lte=max_val)
+        except ValueError:
+            pass
+
+    # Sorting
+    valid_sorts = ['-created_at', 'created_at', 'budget', '-budget']
+    if sort not in valid_sorts:
+        sort = '-created_at'
+    jobs = jobs.order_by(sort)
+
+    # Optimize query
+    jobs = jobs.select_related('client')
+
+    # Get saved job IDs for current user
     saved_job_ids = []
     if request.user.is_authenticated:
-        saved_job_ids = SavedJob.objects.filter(
-            user=request.user
-        ).values_list('job_id', flat=True)
+        saved_job_ids = list(SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True))
 
-    return render(request, 'marketplace/job_list.html', {
+    # Prepare category choices for template
+    category_choices = Job.Category.choices
+
+    context = {
         'jobs': jobs,
         'saved_job_ids': saved_job_ids,
-    })
-
+        'query': query,
+        'category': category,
+        'budget_min': budget_min,
+        'budget_max': budget_max,
+        'sort': sort,
+        'category_choices': category_choices,
+    }
+    return render(request, 'marketplace/job_list.html', context)
 
 def job_detail(request, pk):
     """

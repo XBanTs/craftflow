@@ -3,9 +3,36 @@
 {% block title %}Browse Jobs | CraftFlow{% endblock %}
 
 {% block content %}
-<h1>Open Jobs</h1>
-<p>Browse open projects from clients looking for skilled freelancers like you.</p>
+<h1>Browse Jobs</h1>
 
+<!-- Filter Bar -->
+<form method="get" class="filter-bar reveal">
+    <div class="filter-row">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search jobs..." class="filter-input">
+
+        <select name="category" class="filter-select">
+            <option value="">All Categories</option>
+            {% for value, label in category_choices %}
+                <option value="{{ value }}" {% if category == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="number" name="budget_min" value="{{ budget_min }}" placeholder="Min $" class="filter-input" min="0" step="1">
+        <input type="number" name="budget_max" value="{{ budget_max }}" placeholder="Max $" class="filter-input" min="0" step="1">
+
+        <select name="sort" class="filter-select">
+            <option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>Newest</option>
+            <option value="created_at" {% if sort == 'created_at' %}selected{% endif %}>Oldest</option>
+            <option value="-budget" {% if sort == '-budget' %}selected{% endif %}>Budget: High to Low</option>
+            <option value="budget" {% if sort == 'budget' %}selected{% endif %}>Budget: Low to High</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+        <a href="{% url 'job_list' %}" class="btn">Clear</a>
+    </div>
+</form>
+
+<!-- Results -->
 {% if jobs %}
     <div class="job-cards reveal">
         {% for job in jobs %}
@@ -13,9 +40,9 @@
         {% endfor %}
     </div>
 {% else %}
-    <div class="empty-state">
-        <p>No open jobs at the moment. Check back soon!</p>
-        <a href="{% url 'job_create' %}" class="btn btn-primary">Post a Job</a>
+    <div class="empty-state reveal">
+        <p>No jobs match your criteria. Try adjusting your filters.</p>
+        <a href="{% url 'job_list' %}" class="btn btn-primary">Show All Jobs</a>
     </div>
 {% endif %}
 {% endblock %}
