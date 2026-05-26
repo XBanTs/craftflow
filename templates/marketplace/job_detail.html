@@ -45,27 +45,37 @@
         </div>
     </div>
 
-    <!-- Action buttons -->
+        <!-- Action buttons -->
     <div class="job-actions">
-        {% if user.is_authenticated and job.client != user %}
+        {% if job.client != user %}
             {% if job.status == 'open' %}
-                {% if not user_has_bid %}
-                    <a href="{% url 'bid_create' job.pk %}" class="btn btn-primary">💰 Bid on This Job</a>
+                {% if user.is_authenticated %}
+                    {% if not user_has_bid %}
+                        <a href="{% url 'bid_create' job.pk %}" class="btn btn-primary">💰 Bid on This Job</a>
+                    {% else %}
+                        <div class="alert alert-info">You have already submitted a bid for this job.</div>
+                    {% endif %}
                 {% else %}
-                    <div class="alert alert-info">You have already submitted a bid for this job.</div>
+                    <!-- Not logged in – prompt to login -->
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">
+                        🔐 Log in to Bid
+                    </a>
+                    <p class="text-muted" style="margin-top:0.5rem;">You must be logged in to submit a proposal.</p>
                 {% endif %}
             {% endif %}
 
-            <!-- Save toggle -->
-            <form method="post" action="{% url 'save_job_toggle' job.pk %}" style="display:inline;">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.path }}">
-                {% if is_saved %}
-                    <button type="submit" class="btn">❤️ Saved</button>
-                {% else %}
-                    <button type="submit" class="btn">🤍 Save Job</button>
-                {% endif %}
-            </form>
+            <!-- Save toggle (visible to all authenticated users except client) -->
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'save_job_toggle' job.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    {% if is_saved %}
+                        <button type="submit" class="btn">❤️ Saved</button>
+                    {% else %}
+                        <button type="submit" class="btn">🤍 Save Job</button>
+                    {% endif %}
+                </form>
+            {% endif %}
         {% elif user.is_authenticated and job.client == user %}
             <a href="{% url 'job_edit' job.pk %}" class="btn">✏️ Edit Job</a>
             <a href="{% url 'job_delete' job.pk %}" class="btn btn-danger">🗑️ Delete Job</a>

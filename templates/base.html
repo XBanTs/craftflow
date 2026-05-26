@@ -43,28 +43,19 @@
 
     <!-- JavaScript block (for page-specific scripts) -->
     
-    <!-- Auto-dismiss flash messages after 5 seconds -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                // Fade out after 5 seconds
-                setTimeout(function() {
-                    alert.style.transition = 'opacity 0.5s ease';
-                    alert.style.opacity = '0';
-                    // Remove the element from the DOM after the fade completes
-                    setTimeout(function() {
-                        alert.remove();
-                    }, 500);
-                }, 5000);
-            });
+    document.addEventListener('DOMContentLoaded', function () {
+        // ------ Flash message auto-dismiss ------
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function (alert) {
+            setTimeout(function () {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(function () { alert.remove(); }, 500);
+            }, 5000);
         });
-    </script>
 
-        <!-- Scroll Reveal + Navbar Toggle -->
-    <script>
-        // Mobile navbar toggle
-         document.addEventListener('DOMContentLoaded', function () {
+        // ------ Mobile navbar toggle ------
         const toggleBtn = document.getElementById('navbarToggle');
         const links = document.getElementById('navbarLinks');
         const toggleIcon = document.getElementById('navbarToggleIcon');
@@ -73,15 +64,9 @@
             toggleBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
                 const isOpen = links.classList.toggle('active');
-                // Update ARIA attribute
                 toggleBtn.setAttribute('aria-expanded', isOpen);
-                // Swap icon
-                if (toggleIcon) {
-                    toggleIcon.textContent = isOpen ? '✕' : '☰';
-                }
+                if (toggleIcon) toggleIcon.textContent = isOpen ? '✕' : '☰';
             });
-
-            // Close menu when clicking outside
             document.addEventListener('click', function (event) {
                 const isClickInside = toggleBtn.contains(event.target) || links.contains(event.target);
                 if (!isClickInside && links.classList.contains('active')) {
@@ -91,8 +76,46 @@
                 }
             });
         }
+
+        // ------ Scroll reveal (with guaranteed visibility) ------
+        const revealElements = document.querySelectorAll('.reveal');
+        function showElement(el) {
+            if (!el.classList.contains('visible')) el.classList.add('visible');
+        }
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        showElement(entry.target);
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+            revealElements.forEach(el => observer.observe(el));
+        } else {
+            revealElements.forEach(el => showElement(el));
+        }
+        setTimeout(function () {
+            revealElements.forEach(el => showElement(el));
+        }, 800);
+
+        // ------ Parallax effect on job cards ------
+        const jobCards = document.querySelectorAll('.job-card');
+        if (jobCards.length > 0 && window.innerWidth > 768) {   // only on desktop
+            window.addEventListener('scroll', function () {
+                requestAnimationFrame(function () {
+                    const scrolled = window.pageYOffset;
+                    jobCards.forEach(function (card) {
+                        const rect = card.getBoundingClientRect();
+                        const cardTop = rect.top + scrolled;
+                        const offset = (scrolled - cardTop) * 0.03;  // 3% of scroll difference
+                        card.style.transform = `translateY(${offset}px)`;
+                    });
+                });
+            });
+        }
     });
-    </script>
+</script>
     
     
     {% block extra_js %}{% endblock %}

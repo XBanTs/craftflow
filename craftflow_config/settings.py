@@ -185,7 +185,7 @@ LOGIN_URL = '/accounts/login/'
 # Where @login_required redirects unauthenticated users.
 # Also appends ?next= so they return to the original page after login.
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 # Where Django's built-in LoginView redirects after successful login.
 # We'll use our own views, but this is a safety default.
 

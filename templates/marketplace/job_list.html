@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+
 {% block title %}Browse Jobs | CraftFlow{% endblock %}
+
 {% block content %}
 <h1>Open Jobs</h1>
 <p>Browse open projects from clients looking for skilled freelancers like you.</p>
@@ -11,6 +13,9 @@
         {% endfor %}
     </div>
 {% else %}
-    <p>No open jobs at the moment. Check back soon!</p>
+    <div class="empty-state">
+        <p>No open jobs at the moment. Check back soon!</p>
+        <a href="{% url 'job_create' %}" class="btn btn-primary">Post a Job</a>
+    </div>
 {% endif %}
 {% endblock %}

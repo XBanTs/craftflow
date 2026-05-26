@@ -13,7 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('Seeding database...')
 
-        # ---------- Default superuser (for Render free tier) ----------
+        # ---------- Default superuser (always ensure it exists) ----------
         if not User.objects.filter(is_superuser=True).exists():
             User.objects.create_superuser(
                 username='admin',
@@ -24,6 +24,12 @@ class Command(BaseCommand):
         else:
             self.stdout.write('  → Superuser already exists. Skipping.')
 
+        # ---------- Guard against duplicate seeding ----------
+        if Job.objects.exists():
+            self.stdout.write('  → Jobs already exist. Skipping demo data creation.')
+            return
+
+            
         # ---------- Users ----------
         # Create clients
         clients_data = [

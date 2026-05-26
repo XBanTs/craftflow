@@ -43,7 +43,7 @@ def register_view(request):
                 request,
                 f'Welcome to CraftFlow, {user.username}! Your account has been created.'
             )
-            return redirect('home')
+            return redirect('dashboard')
         else:
             # The form is invalid — Django has already populated form.errors.
             # We add a generic error message for the user.
@@ -80,7 +80,7 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, f'Welcome back, {user.username}!')
-            return redirect('home')
+            return redirect('dashboard')
         else:
             messages.error(request, 'Invalid username or password.')
     else:
