@@ -64,25 +64,34 @@
         <!-- Scroll Reveal + Navbar Toggle -->
     <script>
         // Mobile navbar toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggle = document.getElementById('navbarToggle');
-            const links = document.getElementById('navbarLinks');
-            if (toggle && links) {
-                toggle.addEventListener('click', () => links.classList.toggle('active'));
-            }
+         document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.getElementById('navbarToggle');
+        const links = document.getElementById('navbarLinks');
+        const toggleIcon = document.getElementById('navbarToggleIcon');
 
-            // Scroll reveal
-            const revealElements = document.querySelectorAll('.reveal');
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
-                });
-            }, { threshold: 0.1 });
+        if (toggleBtn && links) {
+            toggleBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = links.classList.toggle('active');
+                // Update ARIA attribute
+                toggleBtn.setAttribute('aria-expanded', isOpen);
+                // Swap icon
+                if (toggleIcon) {
+                    toggleIcon.textContent = isOpen ? '✕' : '☰';
+                }
+            });
 
-            revealElements.forEach(el => observer.observe(el));
-        });
+            // Close menu when clicking outside
+            document.addEventListener('click', function (event) {
+                const isClickInside = toggleBtn.contains(event.target) || links.contains(event.target);
+                if (!isClickInside && links.classList.contains('active')) {
+                    links.classList.remove('active');
+                    toggleBtn.setAttribute('aria-expanded', 'false');
+                    if (toggleIcon) toggleIcon.textContent = '☰';
+                }
+            });
+        }
+    });
     </script>
     
     

@@ -5,11 +5,11 @@
         <a href="{% url 'home' %}" class="navbar-brand">CraftFlow</a>
 
         <!-- Hamburger button (visible on mobile) -->
-        <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle navigation">
-            ☰
+        <button class="navbar-toggle" id="navbarToggle" aria-expanded="false" aria-controls="navbarLinks" aria-label="Toggle navigation">
+            <span id="navbarToggleIcon">☰</span>
         </button>
 
-        <!-- Links container -->
+        <!-- Links container – MUST have id="navbarLinks" -->
         <div class="navbar-links" id="navbarLinks">
             {% if request.user.is_authenticated %}
                 <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
@@ -28,16 +28,3 @@
         </div>
     </div>
 </nav>
-
-<script>
-    // Mobile navbar toggle
-    document.addEventListener('DOMContentLoaded', function () {
-        const toggleBtn = document.getElementById('navbarToggle');
-        const links = document.getElementById('navbarLinks');
-        if (toggleBtn && links) {
-            toggleBtn.addEventListener('click', function () {
-                links.classList.toggle('active');
-            });
-        }
-    });
-</script>
