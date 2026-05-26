@@ -841,6 +841,23 @@ a:hover {
     font-size: 0.85rem;
 }
 
+.client-stars {
+    color: #f59e0b;
+    font-size: 0.9rem;
+    margin-left: 4px;
+}
+.trusted-badge {
+    display: inline-block;
+    background: #d1fae5;
+    color: #065f46;
+    border-radius: 20px;
+    padding: 0.1em 0.6em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
 /* -------------------------------------------------------
    Badges
    ------------------------------------------------------- */

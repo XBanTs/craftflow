@@ -163,17 +163,29 @@ class Command(BaseCommand):
             accepted_bid.status = 'accepted'
             accepted_bid.save()
 
-        # ---------- Reviews ----------
-        # Review on completed job
+                # ---------- Reviews ----------
+        # Review on completed job (client → freelancer)
         if completed_job.status == 'completed':
-            reviewer = completed_job.client
-            reviewee = freelancers[0]  # assume first freelancer did the job
-            Review.objects.create(
+            client_reviewer = completed_job.client
+            freelancer_reviewee = freelancers[0]
+            Review.objects.get_or_create(
                 job=completed_job,
-                reviewer=reviewer,
-                reviewee=reviewee,
-                rating=5,
-                comment='Excellent work, delivered ahead of schedule!',
+                reviewer=client_reviewer,
+                reviewee=freelancer_reviewee,
+                defaults={
+                    'rating': 5,
+                    'comment': 'Excellent work, delivered ahead of schedule!'
+                }
+            )
+            # Also create a review from the freelancer → client (mutual)
+            Review.objects.get_or_create(
+                job=completed_job,
+                reviewer=freelancer_reviewee,
+                reviewee=client_reviewer,
+                defaults={
+                    'rating': 5,
+                    'comment': 'Great communication, clear requirements.'
+                }
             )
 
         # ---------- Services (freelancer offerings) ----------

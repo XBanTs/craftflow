@@ -6,6 +6,7 @@ from django.contrib import messages
 from .models import Job, Bid, SavedJob, Review
 from .forms import JobForm, BidForm
 from accounts.models import FreelancerProfile
+from .utils import get_client_ratings
 
 
 def home(request):
@@ -17,12 +18,16 @@ def home(request):
     freelancer_count = FreelancerProfile.objects.count()
     saved_job_ids = []
     if request.user.is_authenticated:
-        saved_job_ids = SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True)
+        saved_job_ids = list(SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True))
+    # client ratings
+    client_ratings, client_review_counts = get_client_ratings(recent_jobs)
     return render(request, 'marketplace/home.html', {
         'recent_jobs': recent_jobs,
         'open_jobs': open_jobs,
         'freelancer_count': freelancer_count,
         'saved_job_ids': saved_job_ids,
+        'client_ratings': client_ratings,
+        'client_review_counts': client_review_counts,
     })
 
 
@@ -77,6 +82,9 @@ def job_list(request):
     # Prepare category choices for template
     category_choices = Job.Category.choices
 
+    # client ratings
+    client_ratings, client_review_counts = get_client_ratings(jobs)
+
     context = {
         'jobs': jobs,
         'saved_job_ids': saved_job_ids,
@@ -86,8 +94,11 @@ def job_list(request):
         'budget_max': budget_max,
         'sort': sort,
         'category_choices': category_choices,
+        'client_ratings': client_ratings,
+        'client_review_counts': client_review_counts,
     }
     return render(request, 'marketplace/job_list.html', context)
+
 
 def job_detail(request, pk):
     """
@@ -253,6 +264,9 @@ def dashboard(request):
     except FreelancerProfile.DoesNotExist:
         profile_incomplete = True
 
+    # client ratings
+    client_ratings, client_review_counts = get_client_ratings(recommended_jobs)    
+
     context = {
         # Client
         'total_posted': total_posted,
@@ -276,6 +290,8 @@ def dashboard(request):
         'saved_count': saved_count,
         'saved_job_ids': saved_job_ids,
         'profile_incomplete': profile_incomplete,
+        'client_ratings': client_ratings,
+        'client_review_counts': client_review_counts,
     }
     return render(request, 'marketplace/dashboard.html', context)
 
