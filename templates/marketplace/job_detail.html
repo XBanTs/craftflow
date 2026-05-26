@@ -1,114 +1,99 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{{ job.title }} | CraftFlow{% endblock %}
 
 {% block content %}
 <article class="job-detail reveal">
-    <h1>{{ job.title }}</h1>
+    <header class="job-detail-header">
+        <h1>{{ job.title }}</h1>
+        <div class="job-meta-badges">
+            <span class="badge badge-category">{{ job.get_category_display }}</span>
+            <span class="badge badge-status">{{ job.get_status_display }}</span>
+            {% if job.budget %}
+                <span class="badge badge-budget">${{ job.budget|floatformat:2 }}</span>
+            {% endif %}
+        </div>
+    </header>
 
-    <div class="job-detail-meta">
-        <span>Budget: ${{ job.budget|floatformat:2 }}</span>
-        <span>Category: {{ job.get_category_display }}</span>
-        <span>Status: {{ job.get_status_display }}</span>
-        <span>Posted by: {{ job.client.username }}</span>
-        <span>Posted on: {{ job.created_at|date:"F j, Y" }}</span>
+    <div class="job-detail-body">
+        <div class="job-info-card">
+            <div class="info-row">
+                <span class="info-label">Client</span>
+                <span class="info-value">{{ job.client.username }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Posted</span>
+                <span class="info-value">{{ job.created_at|date:"F j, Y" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Category</span>
+                <span class="info-value">{{ job.get_category_display }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Budget</span>
+                <span class="info-value">${{ job.budget|floatformat:2 }}</span>
+            </div>
+        </div>
+
+        <div class="job-description">
+            <h2>Description</h2>
+            <p>{{ job.description|linebreaks }}</p>
+            {% if job.attachment %}
+                <a href="{{ job.attachment.url }}" class="btn" download>📎 Download Attachment</a>
+            {% endif %}
+        </div>
     </div>
 
-    <div class="job-description">
-        {{ job.description|linebreaks }}
-    </div>
+    <!-- Action buttons -->
+    <div class="job-actions">
+        {% if user.is_authenticated and job.client != user %}
+            {% if job.status == 'open' %}
+                {% if not user_has_bid %}
+                    <a href="{% url 'bid_create' job.pk %}" class="btn btn-primary">💰 Bid on This Job</a>
+                {% else %}
+                    <div class="alert alert-info">You have already submitted a bid for this job.</div>
+                {% endif %}
+            {% endif %}
 
-    {% if job.attachment %}
-        <p>
-            <a href="{{ job.attachment.url }}">Download attachment</a>
-        </p>
-    {% endif %}
-
-    <!-- Save Job Toggle -->
-    {% if user.is_authenticated and job.client != user %}
-        <div class="job-actions">
+            <!-- Save toggle -->
             <form method="post" action="{% url 'save_job_toggle' job.pk %}" style="display:inline;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.path }}">
-
                 {% if is_saved %}
-                    <button type="submit" class="btn">
-                        🤍 Unsave
-                    </button>
+                    <button type="submit" class="btn">❤️ Saved</button>
                 {% else %}
-                    <button type="submit" class="btn btn-primary">
-                        ❤️ Save Job
-                    </button>
+                    <button type="submit" class="btn">🤍 Save Job</button>
                 {% endif %}
             </form>
-        </div>
-    {% endif %}
-
-    {% if request.user == job.client %}
-        <div class="job-actions">
-            <a href="{% url 'job_edit' job.pk %}" class="btn">Edit Job</a>
-            <a href="{% url 'job_delete' job.pk %}" class="btn btn-danger">Delete Job</a>
-        </div>
-    {% endif %}
+        {% elif user.is_authenticated and job.client == user %}
+            <a href="{% url 'job_edit' job.pk %}" class="btn">✏️ Edit Job</a>
+            <a href="{% url 'job_delete' job.pk %}" class="btn btn-danger">🗑️ Delete Job</a>
+        {% endif %}
+    </div>
 </article>
 
-<!-- Bidding Actions -->
-{% if user.is_authenticated and job.client != user %}
-    
-    {% if job.status == 'open' %}
-        
-        {% if not user_has_bid %}
-            <div class="job-actions">
-                <a href="{% url 'bid_create' job.pk %}" class="btn btn-primary">
-                    Bid on This Job
-                </a>
-            </div>
-        {% else %}
-            <div class="alert alert-info">
-                You have already submitted a bid for this job.
-            </div>
-        {% endif %}
-    
-    {% else %}
-        <p class="text-muted">
-            Bidding is closed – this job is {{ job.get_status_display }}.
-        </p>
-    {% endif %}
-
-{% elif user.is_authenticated and job.client == user %}
-    
-    <p class="text-muted">
-        You posted this job – you cannot bid on it.
-    </p>
-
-{% endif %}
-
-<section class="bids-section">
-    <h2>Bids ({{ bids.count }})</h2>
-
+<!-- Bids Section -->
+<section class="bids-section reveal">
+    <h2>Proposals ({{ bids.count }})</h2>
     {% if bids %}
-        
-        {% for bid in bids %}
-            <div class="bid-card">
-                <strong>{{ bid.freelancer.username }}</strong>
-                bid ${{ bid.amount|floatformat:2 }}
-
-                <span class="bid-status">
-                    ({{ bid.get_status_display }})
-                </span>
-
-                <p>{{ bid.proposal|truncatewords:40 }}</p>
-
-                <small>
-                    {{ bid.created_at|date:"M d, Y" }}
-                </small>
-            </div>
-        {% endfor %}
-
+        <div class="bids-list">
+            {% for bid in bids %}
+                <div class="bid-card">
+                    <div class="bid-header">
+                        <strong>{{ bid.freelancer.username }}</strong>
+                        <span class="bid-amount">${{ bid.amount|floatformat:2 }}</span>
+                        <span class="bid-status">({{ bid.get_status_display }})</span>
+                    </div>
+                    <p class="bid-proposal">{{ bid.proposal|linebreaks }}</p>
+                    <small class="bid-date">{{ bid.created_at|date:"M d, Y" }}</small>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
-        <p>
-            No bids yet. Be the first to bid on this project!
-        </p>
+        <div class="empty-state">
+            <p>No bids yet. Be the first to submit a proposal!</p>
+        </div>
     {% endif %}
 </section>
 {% endblock %}

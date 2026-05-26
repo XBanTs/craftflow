@@ -1,3 +1,4 @@
+
 /* ============================================================
    CraftFlow – Premium Main Stylesheet
    Clean, modern, premium freelance marketplace UI
@@ -98,6 +99,18 @@
 
     50% {
         transform: translateY(-20px) scale(1.05);
+    }
+}
+
+/* Job card entrance animation */
+@keyframes cardPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
     }
 }
 
@@ -563,7 +576,20 @@ a:hover {
 .job-card {
     display: flex;
     flex-direction: column;
+    animation: cardPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* Stagger effect using nth-child – works for up to 10 cards */
+.job-card:nth-child(1) { animation-delay: 0.05s; }
+.job-card:nth-child(2) { animation-delay: 0.1s; }
+.job-card:nth-child(3) { animation-delay: 0.15s; }
+.job-card:nth-child(4) { animation-delay: 0.2s; }
+.job-card:nth-child(5) { animation-delay: 0.25s; }
+.job-card:nth-child(6) { animation-delay: 0.3s; }
+.job-card:nth-child(7) { animation-delay: 0.35s; }
+.job-card:nth-child(8) { animation-delay: 0.4s; }
+.job-card:nth-child(9) { animation-delay: 0.45s; }
+.job-card:nth-child(10) { animation-delay: 0.5s; }
 
 .job-card h2 {
     font-size: 1.2rem;
@@ -647,6 +673,55 @@ a:hover {
 }
 
 /* -------------------------------------------------------
+   Job Detail Layout (Enhanced)
+   ------------------------------------------------------- */
+
+.job-detail-header h1 { margin-bottom: 1rem; }
+.job-meta-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.job-detail-body { display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; margin-bottom: 2rem; }
+.job-info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+}
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+}
+.info-row:last-child { border-bottom: none; }
+.info-label { color: var(--text-muted); font-weight: 500; }
+.info-value { font-weight: 600; }
+.job-description { background: white; padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border); }
+.job-description h2 { margin-bottom: 1rem; }
+
+/* Bids list */
+.bids-section { margin-top: 2rem; }
+.bids-list { display: flex; flex-direction: column; gap: 1rem; }
+.bid-header { display: flex; gap: 1rem; align-items: baseline; }
+.bid-amount { font-weight: 700; color: var(--accent); }
+.bid-proposal { margin: 0.5rem 0; color: var(--text-muted); }
+
+/* -------------------------------------------------------
+   Badges
+   ------------------------------------------------------- */
+
+.badge {
+    display: inline-block;
+    padding: 0.2em 0.7em;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--primary-light);
+    color: var(--primary);
+}
+.badge-status { background: #FEF3C7; color: #92400E; }
+.badge-budget { background: #D1FAE5; color: #065F46; }
+.badge-category { background: #E0E7FF; color: #3730A3; }
+
+/* -------------------------------------------------------
    Stats Grid
    ------------------------------------------------------- */
 
@@ -691,6 +766,79 @@ a:hover {
 
 .stats-bar div {
     font-weight: 600;
+}
+
+/* -------------------------------------------------------
+   Slideshow
+   ------------------------------------------------------- */
+
+.slideshow-container {
+    position: relative;
+    height: 400px;
+    overflow: hidden;
+    border-radius: var(--radius);
+    margin: 2rem auto;
+    max-width: var(--max-width);
+    box-shadow: var(--shadow-lg);
+}
+
+.slideshow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    animation: crossfade 12s infinite;
+}
+
+.slide1 {
+    background-image: url('https://picsum.photos/id/180/1920/1080');
+    animation-delay: 0s;
+}
+.slide2 {
+    background-image: url('https://picsum.photos/id/48/1920/1080');
+    animation-delay: 4s;
+}
+.slide3 {
+    background-image: url('https://picsum.photos/id/366/1920/1080');
+    animation-delay: 8s;
+}
+
+@keyframes crossfade {
+    0%, 100% { opacity: 0; }
+    8%, 33% { opacity: 1; }
+}
+
+.slideshow-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    z-index: 2;
+}
+.slideshow-overlay h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.slideshow-overlay p {
+    font-size: 1.1rem;
+    opacity: 0.9;
 }
 
 /* -------------------------------------------------------
@@ -797,5 +945,17 @@ a:hover {
 
     .job-actions {
         flex-direction: column;
+    }
+
+    .job-detail-body {
+        grid-template-columns: 1fr;
+    }
+
+    .slideshow-container {
+        height: 250px;
+    }
+
+    .slideshow-overlay h2 {
+        font-size: 1.3rem;
     }
 }

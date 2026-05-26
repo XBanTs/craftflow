@@ -30,10 +30,16 @@ def job_list(request):
     Uses select_related('client') to avoid N+1 queries when accessing
     job.client.username in the template.
     """
-    jobs = Job.objects.filter(status='open').order_by('-created_at').select_related('client')
+    jobs = Job.objects.filter(
+        status__in=['open', 'in_progress']
+    ).order_by('-created_at').select_related('client')
+
     saved_job_ids = []
     if request.user.is_authenticated:
-        saved_job_ids = SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True)
+        saved_job_ids = SavedJob.objects.filter(
+            user=request.user
+        ).values_list('job_id', flat=True)
+
     return render(request, 'marketplace/job_list.html', {
         'jobs': jobs,
         'saved_job_ids': saved_job_ids,
