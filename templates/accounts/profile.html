@@ -7,6 +7,10 @@
 <div class="profile-container">
     <h1>{{ profile_user.username }}</h1>
 
+    {% if freelancer_profile and freelancer_profile.is_verified %}
+        <span class="verified-badge large" title="Verified Freelancer">✓ Verified</span>
+    {% endif %}
+
     {% if freelancer_profile %}
         <section class="profile-section">
             <h2>About</h2>

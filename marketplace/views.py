@@ -96,18 +96,29 @@ def job_detail(request, pk):
     """
     job = get_object_or_404(Job, pk=pk)
     bids = job.bids.all().select_related('freelancer').order_by('-created_at')
+
     user_has_bid = False
     is_saved = False
     if request.user.is_authenticated:
         user_has_bid = Bid.objects.filter(job=job, freelancer=request.user).exists()
         is_saved = SavedJob.objects.filter(user=request.user, job=job).exists()
+
+    # Collect verified freelancer IDs among all bidders
+    bidder_ids = bids.values_list('freelancer_id', flat=True)
+    verified_ids = FreelancerProfile.objects.filter(
+        user_id__in=bidder_ids, is_verified=True
+    ).values_list('user_id', flat=True)
+    verified_freelancer_ids = set(verified_ids)
+
     context = {
         'job': job,
         'bids': bids,
         'user_has_bid': user_has_bid,
         'is_saved': is_saved,
+        'verified_freelancer_ids': verified_freelancer_ids,
     }
     return render(request, 'marketplace/job_detail.html', context)
+
 
 
 @login_required

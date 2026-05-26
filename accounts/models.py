@@ -59,10 +59,15 @@ class FreelancerProfile(models.Model):
         upload_to='avatars/',
         null=True,
         blank=True
-        # ImageField requires Pillow to be installed (we did that in Phase 1).
+        # ImageField requires Pillow to be installed
         # upload_to defines the subdirectory under MEDIA_ROOT where files are stored.
         # The final path: MEDIA_ROOT/avatars/somefile.jpg
         # This satisfies the Brief's requirement for at least one model with ImageField.
+    )
+
+    is_verified = models.BooleanField(
+        default=False,
+        help_text="Designates whether the freelancer has been verified by an admin."
     )
 
     created_at = models.DateTimeField(auto_now_add=True)

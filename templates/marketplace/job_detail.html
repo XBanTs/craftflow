@@ -91,7 +91,12 @@
             {% for bid in bids %}
                 <div class="bid-card">
                     <div class="bid-header">
-                        <strong>{{ bid.freelancer.username }}</strong>
+                        <strong>
+                        {{ bid.freelancer.username }}
+                        {% if bid.freelancer.id in verified_freelancer_ids %}
+                            <span class="verified-badge" title="Verified Freelancer">✓</span>
+                        {% endif %}
+                    </strong>
                         <span class="bid-amount">${{ bid.amount|floatformat:2 }}</span>
                         <span class="bid-status">({{ bid.get_status_display }})</span>
                     </div>
