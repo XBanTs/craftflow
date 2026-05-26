@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db.models import Sum, Avg
+from marketplace.models import Bid, Review
 from .forms import CustomUserRegistrationForm, FreelancerProfileEditForm
 from .models import FreelancerProfile
 
@@ -117,20 +119,35 @@ def profile_view(request, pk):
     """
     profile_user = get_object_or_404(User, pk=pk)
 
-    # Try to get the FreelancerProfile. If it doesn't exist, profile is None.
+    # Freelancer profile
     try:
         freelancer_profile = profile_user.freelancer_profile
-        # Accessible via the OneToOneField reverse relation.
-        # The related_name we set is 'freelancer_profile'.
     except FreelancerProfile.DoesNotExist:
         freelancer_profile = None
+
+    # ---------- Freelancer Stats ----------
+    accepted_bids = Bid.objects.filter(freelancer=profile_user, status='accepted')
+    total_accepted = accepted_bids.count()
+    completed_bids = accepted_bids.filter(job__status='completed')
+    total_completed = completed_bids.count()
+    total_earned = completed_bids.aggregate(total=Sum('amount'))['total'] or 0
+    completion_rate = (total_completed / total_accepted * 100) if total_accepted > 0 else 0
+
+    # Reviews
+    reviews_received = Review.objects.filter(reviewee=profile_user)
+    avg_rating = reviews_received.aggregate(avg=Avg('rating'))['avg'] or 0
+    review_count = reviews_received.count()
 
     context = {
         'profile_user': profile_user,
         'freelancer_profile': freelancer_profile,
+        'total_completed': total_completed,
+        'total_earned': total_earned,
+        'completion_rate': completion_rate,
+        'avg_rating': avg_rating,
+        'review_count': review_count,
     }
     return render(request, 'accounts/profile.html', context)
-
 
 @staff_member_required
 def admin_dashboard(request):

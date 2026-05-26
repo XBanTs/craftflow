@@ -1,15 +1,15 @@
-<!-- craftflow/templates/accounts/profile.html -->
 {% extends 'base.html' %}
 
 {% block title %}{{ profile_user.username }}'s Profile | CraftFlow{% endblock %}
 
 {% block content %}
 <div class="profile-container">
-    <h1>{{ profile_user.username }}</h1>
-
-    {% if freelancer_profile and freelancer_profile.is_verified %}
-        <span class="verified-badge large" title="Verified Freelancer">✓ Verified</span>
-    {% endif %}
+    <h1>
+        {{ profile_user.username }}
+        {% if freelancer_profile and freelancer_profile.is_verified %}
+            <span class="verified-badge large" title="Verified Freelancer">✓ Verified</span>
+        {% endif %}
+    </h1>
 
     {% if freelancer_profile %}
         <section class="profile-section">
@@ -37,6 +37,35 @@
             </section>
         {% endif %}
 
+        <!-- Performance Stats -->
+        <section class="profile-section">
+            <h2>Performance Stats</h2>
+            <div class="stats-grid" style="margin-top:1rem;">
+                <div class="stat-card">
+                    <h3>Completed Projects</h3>
+                    <p>{{ total_completed }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Earned</h3>
+                    <p>${{ total_earned|floatformat:2 }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Completion Rate</h3>
+                    <p>{{ completion_rate|floatformat:0 }}%</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Rating</h3>
+                    <p>
+                        {% if review_count > 0 %}
+                            ⭐ {{ avg_rating|floatformat:1 }} ({{ review_count }})
+                        {% else %}
+                            No reviews yet
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </section>
+
         {% if freelancer_profile.avatar %}
             <section class="profile-section">
                 <img src="{{ freelancer_profile.avatar.url }}" 
@@ -49,7 +78,9 @@
     {% endif %}
 
     {% if request.user == profile_user %}
-    <p><a href="{% url 'profile_edit' profile_user.pk %}" class="btn">Edit Profile</a></p>
-{% endif %}
+        <p>
+            <a href="{% url 'profile_edit' profile_user.pk %}" class="btn">Edit Profile</a>
+        </p>
+    {% endif %}
 </div>
 {% endblock %}
