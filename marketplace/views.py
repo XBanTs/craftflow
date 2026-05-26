@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db import models
+from django.db.models import Sum, Avg
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Job, Bid, SavedJob
+from .models import Job, Bid, SavedJob, Review
 from .forms import JobForm, BidForm
 from accounts.models import FreelancerProfile
 
@@ -146,26 +148,84 @@ def job_delete(request, pk):
 
 @login_required
 def dashboard(request):
-    client_jobs = Job.objects.filter(client=request.user).order_by('-created_at')
-    freelancer_bids = Bid.objects.filter(freelancer=request.user).select_related('job').order_by('-created_at')
-    total_jobs = Job.objects.count()
-    open_jobs = Job.objects.filter(status='open').count()
+    # ---------- Client Stats ----------
+    client_jobs = Job.objects.filter(client=request.user)
+    total_posted = client_jobs.count()
+    open_client_jobs = client_jobs.filter(status='open').count()
+    in_progress_client_jobs = client_jobs.filter(status='in_progress').count()
+    completed_client_jobs = client_jobs.filter(status='completed')
+    total_completed_client = completed_client_jobs.count()
+    # Total amount spent on completed jobs (budgets of those jobs)
+    total_spent = completed_client_jobs.aggregate(total=models.Sum('budget'))['total'] or 0
+
+    # ---------- Freelancer Stats ----------
+    freelancer_bids = Bid.objects.filter(freelancer=request.user)
+    total_bids = freelancer_bids.count()
+    active_bids = freelancer_bids.filter(status='pending').count()
+    accepted_bids = freelancer_bids.filter(status='accepted')
+    total_accepted = accepted_bids.count()
+    # Completed projects where freelancer's accepted bid is on a completed job
+    completed_projects = accepted_bids.filter(job__status='completed')
+    total_completed_freelancer = completed_projects.count()
+    # Total earned (sum of accepted bid amounts on completed projects)
+    total_earned = completed_projects.aggregate(total=models.Sum('amount'))['total'] or 0
+    # Completion rate (percentage of accepted bids that ended in completed jobs)
+    completion_rate = (total_completed_freelancer / total_accepted * 100) if total_accepted > 0 else 0
+    # Average rating received
+    reviews_received = Review.objects.filter(reviewee=request.user)
+    avg_rating = reviews_received.aggregate(avg=models.Avg('rating'))['avg'] or 0
+    review_count = reviews_received.count()
+
+    # ---------- General Activity ----------
+    # Recent bids (for freelancers) or recent jobs posted (for clients)
+    recent_activity = []
+    if total_bids > 0:
+        recent_activity = freelancer_bids.select_related('job').order_by('-created_at')[:5]
+    elif total_posted > 0:
+        recent_activity = client_jobs.order_by('-created_at')[:5]
+
+    # ---------- Recommended Jobs (existing) ----------
+    open_jobs_count = Job.objects.filter(status='open').count()
     recommended_jobs = Job.objects.filter(status='open').exclude(client=request.user).order_by('-created_at')[:5]
 
+    # ---------- Saved Job Count ----------
     saved_count = SavedJob.objects.filter(user=request.user).count()
-    saved_job_ids = SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True)
+
+    # ---------- Saved Job IDs (for bookmark icons) ----------
+    saved_job_ids = list(SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True))
+
+    # ---------- Profile Completion Check ----------
+    try:
+        profile = request.user.freelancer_profile
+        profile_incomplete = not all([profile.bio, profile.skills])
+    except FreelancerProfile.DoesNotExist:
+        profile_incomplete = True
 
     context = {
-        'client_jobs': client_jobs,
-        'freelancer_bids': freelancer_bids,
-        'total_jobs': total_jobs,
-        'open_jobs': open_jobs,
+        # Client
+        'total_posted': total_posted,
+        'open_client_jobs': open_client_jobs,
+        'in_progress_client_jobs': in_progress_client_jobs,
+        'total_completed_client': total_completed_client,
+        'total_spent': total_spent,
+        # Freelancer
+        'total_bids': total_bids,
+        'active_bids': active_bids,
+        'total_accepted': total_accepted,
+        'total_completed_freelancer': total_completed_freelancer,
+        'total_earned': total_earned,
+        'completion_rate': completion_rate,
+        'avg_rating': avg_rating,
+        'review_count': review_count,
+        # General
+        'recent_activity': recent_activity,
+        'open_jobs_count': open_jobs_count,
         'recommended_jobs': recommended_jobs,
         'saved_count': saved_count,
         'saved_job_ids': saved_job_ids,
+        'profile_incomplete': profile_incomplete,
     }
-    return render(request, 'marketplace/dashboard.html', context)    
-
+    return render(request, 'marketplace/dashboard.html', context)
 
 @login_required
 def bid_create(request, job_pk):

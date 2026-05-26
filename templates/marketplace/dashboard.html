@@ -1,161 +1,130 @@
 {% extends 'base.html' %}
 
-{% block title %}
-    Dashboard | CraftFlow
-{% endblock %}
+{% block title %}Dashboard | CraftFlow{% endblock %}
 
 {% block content %}
+<div class="dashboard">
+    <!-- Welcome & Profile Nudge -->
+    <div class="dashboard-header reveal">
+        <h1>Welcome, {{ request.user.username }} 👋</h1>
+        {% if profile_incomplete %}
+            <div class="profile-nudge">
+                <span>Your freelancer profile is incomplete. Complete it to attract more clients!</span>
+                <a href="{% url 'profile_edit' request.user.pk %}" class="btn btn-primary btn-sm">Complete Profile</a>
+            </div>
+        {% endif %}
+    </div>
 
-<!-- =========================================================
-     DASHBOARD HEADER
-========================================================= -->
-<section class="dashboard-header reveal">
-
-    <div class="dashboard-header-content">
-
-        <div>
-            <h1>
-                Welcome back, {{ request.user.username }}
-            </h1>
-
-            <p class="text-muted">
-                Track your projects, bids, and opportunities all in one place.
-            </p>
+    <!-- Stats Grid -->
+    <div class="stats-grid reveal">
+        <!-- Client Stats -->
+        <div class="stat-card stat-card-client">
+            <h3>🏢 Your Client Activity</h3>
+            <div class="stat-row">
+                <span>Total Jobs Posted</span>
+                <strong>{{ total_posted }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Open Jobs</span>
+                <strong>{{ open_client_jobs }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>In Progress</span>
+                <strong>{{ in_progress_client_jobs }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Completed</span>
+                <strong>{{ total_completed_client }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Total Spent</span>
+                <strong>${{ total_spent|floatformat:2 }}</strong>
+            </div>
         </div>
 
-        <div class="dashboard-actions">
-            <a href="{% url 'job_create' %}" class="btn btn-primary">
-                Post a Job
-            </a>
-
-            <a href="{% url 'job_list' %}" class="btn">
-                Browse Jobs
-            </a>
+        <!-- Freelancer Stats -->
+        <div class="stat-card stat-card-freelancer">
+            <h3>💼 Your Freelancer Activity</h3>
+            <div class="stat-row">
+                <span>Total Bids</span>
+                <strong>{{ total_bids }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Active Bids</span>
+                <strong>{{ active_bids }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Accepted Bids</span>
+                <strong>{{ total_accepted }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Completed Projects</span>
+                <strong>{{ total_completed_freelancer }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Total Earned</span>
+                <strong>${{ total_earned|floatformat:2 }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Completion Rate</span>
+                <strong>{{ completion_rate|floatformat:0 }}%</strong>
+            </div>
+            <div class="stat-row">
+                <span>Avg. Rating</span>
+                <strong>
+                    {% if review_count > 0 %}
+                        ⭐ {{ avg_rating|floatformat:1 }} ({{ review_count }} reviews)
+                    {% else %}
+                        No reviews yet
+                    {% endif %}
+                </strong>
+            </div>
         </div>
-
     </div>
 
-</section>
-
-<!-- =========================================================
-     STATS GRID
-========================================================= -->
-<section class="stats-grid reveal">
-
-    <div class="stat-card">
-        <h3>Your Open Jobs</h3>
-
-        <p>
-            {{ client_jobs.count }}
-        </p>
-
-        <span class="text-muted">
-            Jobs currently accepting proposals
-        </span>
+    <!-- Quick Actions -->
+    <div class="quick-actions reveal">
+        <a href="{% url 'job_create' %}" class="btn btn-primary">➕ Post a Job</a>
+        <a href="{% url 'job_list' %}" class="btn">🔍 Browse Jobs</a>
+        <a href="{% url 'saved_jobs' %}" class="btn">❤️ Saved Jobs ({{ saved_count }})</a>
     </div>
 
-    <div class="stat-card">
-        <h3>Active Bids</h3>
+    <!-- Recent Activity -->
+    {% if recent_activity %}
+        <section class="recent-activity reveal">
+            <h2>Recent Activity</h2>
+            <ul>
+                {% if total_bids > 0 %}
+                    {% for bid in recent_activity %}
+                        <li>
+                            You bid <strong>${{ bid.amount|floatformat:2 }}</strong> on 
+                            <a href="{% url 'job_detail' bid.job.pk %}">{{ bid.job.title }}</a>
+                            <span class="text-muted"> — {{ bid.created_at|date:"M d" }}</span>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    {% for job in recent_activity %}
+                        <li>
+                            You posted 
+                            <a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a>
+                            <span class="text-muted"> — {{ job.created_at|date:"M d" }}</span>
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </section>
+    {% endif %}
 
-        <p>
-            {{ freelancer_bids.count }}
-        </p>
-
-        <span class="text-muted">
-            Ongoing freelance applications
-        </span>
-    </div>
-
-    <div class="stat-card">
-        <h3>Total Platform Jobs</h3>
-
-        <p>
-            {{ total_jobs }}
-        </p>
-
-        <span class="text-muted">
-            Opportunities available marketplace wide
-        </span>
-    </div>
-
-</section>
-
-<!-- =========================================================
-     RECOMMENDED JOBS
-========================================================= -->
-{% if recommended_jobs %}
-
-<section class="recent-jobs reveal">
-
-    <div class="section-header">
-
-        <div>
+    <!-- Recommended Jobs -->
+    {% if recommended_jobs %}
+        <section class="recent-jobs reveal">
             <h2>Recommended for You</h2>
-
-            <p class="text-muted">
-                Personalized opportunities based on your activity and skills.
-            </p>
-        </div>
-
-        <a href="{% url 'job_list' %}" class="btn">
-            Explore More Jobs
-        </a>
-
-    </div>
-
-    <div class="job-cards">
-
-        {% for job in recommended_jobs %}
-            {% include 'components/job_card.html' with job=job saved_job_ids=saved_job_ids %}
-        {% endfor %}
-
-    </div>
-
-</section>
-
-{% else %}
-
-<!-- =========================================================
-     EMPTY RECOMMENDATIONS
-========================================================= -->
-<section class="empty-state reveal">
-
-    <h2>No Recommendations Yet</h2>
-
-    <p>
-        We do not have personalized recommendations for you right now.
-        Explore available jobs and interact more with the platform to improve recommendations.
-    </p>
-
-    <a href="{% url 'job_list' %}" class="btn btn-primary">
-        Browse Jobs
-    </a>
-
-</section>
-
-{% endif %}
-
-<!-- =========================================================
-     OPTIONAL SCROLL REVEAL SCRIPT
-========================================================= -->
-<script>
-    const revealElements = document.querySelectorAll('.reveal');
-
-    function revealOnScroll() {
-        revealElements.forEach((element) => {
-            const windowHeight = window.innerHeight;
-            const revealTop = element.getBoundingClientRect().top;
-            const revealPoint = 100;
-
-            if (revealTop < windowHeight - revealPoint) {
-                element.classList.add('visible');
-            }
-        });
-    }
-
-    window.addEventListener('scroll', revealOnScroll);
-
-    revealOnScroll();
-</script>
-
+            <div class="job-cards">
+                {% for job in recommended_jobs %}
+                    {% include 'components/job_card.html' with job=job saved_job_ids=saved_job_ids %}
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+</div>
 {% endblock %}

@@ -704,6 +704,71 @@ a:hover {
 .bid-amount { font-weight: 700; color: var(--accent); }
 .bid-proposal { margin: 0.5rem 0; color: var(--text-muted); }
 
+/* ========== DASHBOARD ENHANCEMENT ========== */
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+.profile-nudge {
+    background: #FEF3C7;
+    border-left: 4px solid #F59E0B;
+    padding: 1rem;
+    border-radius: var(--radius);
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.profile-nudge span {
+    font-weight: 500;
+}
+.stat-card-client,
+.stat-card-freelancer {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-row span { color: var(--text-muted); }
+.stat-row strong { font-weight: 700; color: var(--text); }
+
+.quick-actions {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+}
+.quick-actions .btn { flex-shrink: 0; }
+
+.recent-activity {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+.recent-activity ul {
+    list-style: none;
+    margin-top: 1rem;
+}
+.recent-activity li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+.recent-activity li:last-child { border-bottom: none; }
+
+.btn-sm {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+}
+
 /* -------------------------------------------------------
    Badges
    ------------------------------------------------------- */
