@@ -45,15 +45,22 @@
     
     <script>
     document.addEventListener('DOMContentLoaded', function () {
+
         // ------ Flash message auto-dismiss ------
         const alerts = document.querySelectorAll('.alert');
+
         alerts.forEach(function (alert) {
             setTimeout(function () {
                 alert.style.transition = 'opacity 0.5s ease';
                 alert.style.opacity = '0';
-                setTimeout(function () { alert.remove(); }, 500);
+
+                setTimeout(function () {
+                    alert.remove();
+                }, 500);
+
             }, 5000);
         });
+
 
         // ------ Mobile navbar toggle ------
         const toggleBtn = document.getElementById('navbarToggle');
@@ -61,63 +68,126 @@
         const toggleIcon = document.getElementById('navbarToggleIcon');
 
         if (toggleBtn && links) {
+
             toggleBtn.addEventListener('click', function (e) {
                 e.stopPropagation();
+
                 const isOpen = links.classList.toggle('active');
+
                 toggleBtn.setAttribute('aria-expanded', isOpen);
-                if (toggleIcon) toggleIcon.textContent = isOpen ? '✕' : '☰';
+
+                if (toggleIcon) {
+                    toggleIcon.textContent = isOpen ? '✕' : '☰';
+                }
             });
+
             document.addEventListener('click', function (event) {
-                const isClickInside = toggleBtn.contains(event.target) || links.contains(event.target);
+
+                const isClickInside =
+                    toggleBtn.contains(event.target) ||
+                    links.contains(event.target);
+
                 if (!isClickInside && links.classList.contains('active')) {
+
                     links.classList.remove('active');
+
                     toggleBtn.setAttribute('aria-expanded', 'false');
-                    if (toggleIcon) toggleIcon.textContent = '☰';
+
+                    if (toggleIcon) {
+                        toggleIcon.textContent = '☰';
+                    }
                 }
             });
         }
 
+
         // ------ Scroll reveal (with guaranteed visibility) ------
         const revealElements = document.querySelectorAll('.reveal');
+
         function showElement(el) {
-            if (!el.classList.contains('visible')) el.classList.add('visible');
+            if (!el.classList.contains('visible')) {
+                el.classList.add('visible');
+            }
         }
+
         if ('IntersectionObserver' in window) {
+
             const observer = new IntersectionObserver((entries, obs) => {
+
                 entries.forEach(entry => {
+
                     if (entry.isIntersecting) {
                         showElement(entry.target);
                         obs.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
             revealElements.forEach(el => observer.observe(el));
+
         } else {
             revealElements.forEach(el => showElement(el));
         }
+
         setTimeout(function () {
             revealElements.forEach(el => showElement(el));
         }, 800);
 
+
         // ------ Parallax effect on job cards ------
         const jobCards = document.querySelectorAll('.job-card');
-        if (jobCards.length > 0 && window.innerWidth > 768) {   // only on desktop
+
+        if (jobCards.length > 0 && window.innerWidth > 768) {
+
+            // only on desktop
             window.addEventListener('scroll', function () {
+
                 requestAnimationFrame(function () {
+
                     const scrolled = window.pageYOffset;
+
                     jobCards.forEach(function (card) {
+
                         const rect = card.getBoundingClientRect();
                         const cardTop = rect.top + scrolled;
-                        const offset = (scrolled - cardTop) * 0.03;  // 3% of scroll difference
+
+                        const offset = (scrolled - cardTop) * 0.03;
+
+                        // 3% of scroll difference
                         card.style.transform = `translateY(${offset}px)`;
                     });
                 });
             });
         }
+
+
+        // ------ User dropdown toggle ------
+        const userDropdownBtn = document.getElementById('userDropdownBtn');
+        const userDropdown = document.querySelector('.user-dropdown');
+
+        if (userDropdownBtn && userDropdown) {
+
+            userDropdownBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function (e) {
+
+                if (!userDropdown.contains(e.target)) {
+                    userDropdown.classList.remove('active');
+                }
+            });
+        }
+
     });
 </script>
     
-    
     {% block extra_js %}{% endblock %}
+    
 </body>
 </html>

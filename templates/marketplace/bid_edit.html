@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Edit Bid | CraftFlow{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <h1>Edit Bid for "{{ job.title }}"</h1>
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}<div class="field-errors">{% for e in field.errors %}<span class="field-error">{{ e }}</span>{% endfor %}</div>{% endif %}
+            </div>
+        {% endfor %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Update Bid</button>
+            <a href="{% url 'my_bids' %}" class="btn">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

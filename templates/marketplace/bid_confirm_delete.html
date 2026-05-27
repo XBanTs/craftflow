@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Delete Bid | CraftFlow{% endblock %}
+{% block content %}
+<h1>Delete Bid</h1>
+<p>Are you sure you want to delete your bid of <strong>${{ bid.amount|floatformat:2 }}</strong> for "{{ bid.job.title }}"?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="{% url 'my_bids' %}" class="btn">Cancel</a>
+</form>
+{% endblock %}

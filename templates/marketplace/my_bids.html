@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}My Bids | CraftFlow{% endblock %}
+{% block content %}
+<h1>My Bids</h1>
+
+{% if bids %}
+    <div class="bids-list">
+        {% for bid in bids %}
+            <div class="bid-card reveal">
+                <div class="bid-header">
+                    <strong>
+                        <a href="{% url 'job_detail' bid.job.pk %}">{{ bid.job.title }}</a>
+                    </strong>
+                    <span class="bid-amount">${{ bid.amount|floatformat:2 }}</span>
+                    <span class="badge badge-status">{{ bid.get_status_display }}</span>
+                </div>
+                <p class="bid-proposal">{{ bid.proposal|truncatewords:40 }}</p>
+                <div class="bid-footer">
+                    <small>Submitted {{ bid.created_at|date:"M d, Y" }}</small>
+                    {% if bid.status == 'pending' %}
+                        <div class="bid-actions">
+                            <a href="{% url 'bid_edit' bid.pk %}" class="btn btn-sm">Edit</a>
+                            <a href="{% url 'bid_delete' bid.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <p>You haven't submitted any bids yet.</p>
+        <a href="{% url 'job_list' %}" class="btn btn-primary">Browse Jobs</a>
+    </div>
+{% endif %}
+{% endblock %}

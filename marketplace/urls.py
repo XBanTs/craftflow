@@ -15,6 +15,9 @@ urlpatterns = [
     path('jobs/<int:job_pk>/bid/', views.bid_create, name='bid_create'),
     path('jobs/<int:job_pk>/save/', views.save_job_toggle, name='save_job_toggle'),
     path('saved-jobs/', views.saved_jobs, name='saved_jobs'),
+    path('my-bids/', views.my_bids, name='my_bids'),
+    path('bids/<int:pk>/edit/', views.bid_edit, name='bid_edit'),
+    path('bids/<int:pk>/delete/', views.bid_delete, name='bid_delete'),
 
     # API endpoints
     path('api/jobs/', api_views.JobListCreateAPIView.as_view(), name='api_job_list'),

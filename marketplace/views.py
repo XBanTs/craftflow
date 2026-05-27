@@ -414,4 +414,42 @@ def saved_jobs(request):
         'jobs': saved_jobs_list,
         'saved_job_ids': [job.pk for job in saved_jobs_list],  # all are saved
     }
-    return render(request, 'marketplace/saved_jobs.html', context)    
+    return render(request, 'marketplace/saved_jobs.html', context) 
+
+
+@login_required
+def my_bids(request):
+    """List all bids made by the logged-in freelancer, with edit/delete actions."""
+    bids = Bid.objects.filter(freelancer=request.user).select_related('job').order_by('-created_at')
+    return render(request, 'marketplace/my_bids.html', {'bids': bids})
+
+
+@login_required
+def bid_edit(request, pk):
+    """Edit a pending bid."""
+    bid = get_object_or_404(Bid, pk=pk, freelancer=request.user, status='pending')
+    if request.method == 'POST':
+        form = BidForm(request.POST, instance=bid)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Bid updated successfully.')
+            return redirect('my_bids')
+    else:
+        form = BidForm(instance=bid)
+    return render(request, 'marketplace/bid_edit.html', {
+        'form': form,
+        'bid': bid,
+        'job': bid.job,
+    })
+
+
+@login_required
+def bid_delete(request, pk):
+    """Delete a pending bid."""
+    bid = get_object_or_404(Bid, pk=pk, freelancer=request.user, status='pending')
+    if request.method == 'POST':
+        bid.delete()
+        messages.success(request, 'Bid deleted.')
+        return redirect('my_bids')
+    return render(request, 'marketplace/bid_confirm_delete.html', {'bid': bid}) 
+
