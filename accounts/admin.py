@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import FreelancerProfile
+from .models import FreelancerProfile, PortfolioItem
 
 
 @admin.register(FreelancerProfile)
@@ -17,3 +17,10 @@ class FreelancerProfileAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'skills')
     list_filter = ('is_verified', 'created_at',)
     raw_id_fields = ('user',)
+
+
+@admin.register(PortfolioItem)
+class PortfolioItemAdmin(admin.ModelAdmin):
+    list_display = ('user', 'title', 'created_at')
+    search_fields = ('user__username', 'title')
+    raw_id_fields = ('user',)    

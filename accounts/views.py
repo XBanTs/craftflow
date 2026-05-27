@@ -7,8 +7,8 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Sum, Avg
 from marketplace.models import Bid, Review
-from .forms import CustomUserRegistrationForm, FreelancerProfileEditForm
-from .models import FreelancerProfile
+from .forms import CustomUserRegistrationForm, FreelancerProfileEditForm, PortfolioItemForm
+from .models import FreelancerProfile, PortfolioItem
 
 
 def register_view(request):
@@ -138,6 +138,11 @@ def profile_view(request, pk):
     avg_rating = reviews_received.aggregate(avg=Avg('rating'))['avg'] or 0
     review_count = reviews_received.count()
 
+        # Portfolio items (only if freelancer profile exists)
+    portfolio_items = []
+    if freelancer_profile:
+        portfolio_items = PortfolioItem.objects.filter(user=profile_user).order_by('-created_at')
+
     context = {
         'profile_user': profile_user,
         'freelancer_profile': freelancer_profile,
@@ -146,6 +151,7 @@ def profile_view(request, pk):
         'completion_rate': completion_rate,
         'avg_rating': avg_rating,
         'review_count': review_count,
+        'portfolio_items': portfolio_items,
     }
     return render(request, 'accounts/profile.html', context)
 
@@ -201,3 +207,51 @@ def profile_edit_view(request, pk):
         form = FreelancerProfileEditForm(instance=profile)
 
     return render(request, 'accounts/profile_edit.html', {'form': form})
+
+
+@login_required
+def portfolio_create(request):
+    if request.method == 'POST':
+        form = PortfolioItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.user = request.user
+            item.save()
+            messages.success(request, 'Portfolio item added.')
+            return redirect('profile', pk=request.user.pk)
+    else:
+        form = PortfolioItemForm()
+    return render(request, 'accounts/portfolio_form.html', {
+        'form': form,
+        'action': 'Add',
+    })
+
+
+@login_required
+def portfolio_edit(request, pk):
+    item = get_object_or_404(PortfolioItem, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = PortfolioItemForm(request.POST, request.FILES, instance=item)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Portfolio item updated.')
+            return redirect('profile', pk=request.user.pk)
+    else:
+        form = PortfolioItemForm(instance=item)
+    return render(request, 'accounts/portfolio_form.html', {
+        'form': form,
+        'action': 'Edit',
+        'item': item,
+    })
+
+
+@login_required
+def portfolio_delete(request, pk):
+    item = get_object_or_404(PortfolioItem, pk=pk, user=request.user)
+    if request.method == 'POST':
+        item.delete()
+        messages.success(request, 'Portfolio item deleted.')
+        return redirect('profile', pk=request.user.pk)
+    return render(request, 'accounts/portfolio_confirm_delete.html', {
+        'item': item,
+    })    

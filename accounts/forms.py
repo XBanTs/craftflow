@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import FreelancerProfile
+from .models import FreelancerProfile, PortfolioItem
 
 
 class CustomUserRegistrationForm(UserCreationForm):
@@ -54,3 +54,14 @@ class FreelancerProfileEditForm(forms.ModelForm):
             'bio': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Introduce yourself and your expertise…'}),
             'skills': forms.TextInput(attrs={'placeholder': 'e.g. Python, React, UI Design'}),
         }
+
+
+class PortfolioItemForm(forms.ModelForm):
+    class Meta:
+        model = PortfolioItem
+        fields = ['title', 'description', 'image', 'link']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
+            'title': forms.TextInput(attrs={'placeholder': 'e.g. E‑commerce website redesign'}),
+            'link': forms.URLInput(attrs={'placeholder': 'https://...'}),
+        }        

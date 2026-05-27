@@ -45,14 +45,17 @@
                     <h3>Completed Projects</h3>
                     <p>{{ total_completed }}</p>
                 </div>
+
                 <div class="stat-card">
                     <h3>Total Earned</h3>
                     <p>${{ total_earned|floatformat:2 }}</p>
                 </div>
+
                 <div class="stat-card">
                     <h3>Completion Rate</h3>
                     <p>{{ completion_rate|floatformat:0 }}%</p>
                 </div>
+
                 <div class="stat-card">
                     <h3>Rating</h3>
                     <p>
@@ -66,20 +69,76 @@
             </div>
         </section>
 
+        <!-- Portfolio Gallery -->
+        {% if portfolio_items %}
+            <section class="profile-section">
+                <h2>Portfolio</h2>
+
+                <div class="portfolio-grid">
+                    {% for item in portfolio_items %}
+                        <div class="portfolio-card">
+
+                            {% if item.image %}
+                                <img src="{{ item.image.url }}" 
+                                     alt="{{ item.title }}" 
+                                     class="portfolio-img">
+                            {% endif %}
+
+                            <div class="portfolio-info">
+                                <h3>{{ item.title }}</h3>
+
+                                {% if item.description %}
+                                    <p>{{ item.description|truncatewords:20 }}</p>
+                                {% endif %}
+
+                                {% if item.link %}
+                                    <a href="{{ item.link }}" 
+                                       target="_blank" 
+                                       rel="noopener">
+                                        View Project ↗
+                                    </a>
+                                {% endif %}
+
+                                {% if request.user == profile_user %}
+                                    <div class="portfolio-actions">
+                                        <a href="{% url 'portfolio_edit' item.pk %}" class="btn btn-sm">
+                                            Edit
+                                        </a>
+
+                                        <a href="{% url 'portfolio_delete' item.pk %}" 
+                                           class="btn btn-sm btn-danger">
+                                            Delete
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+
         {% if freelancer_profile.avatar %}
             <section class="profile-section">
-                <img src="{{ freelancer_profile.avatar.url }}" 
-                     alt="{{ profile_user.username }}'s avatar" 
+                <img src="{{ freelancer_profile.avatar.url }}"
+                     alt="{{ profile_user.username }}'s avatar"
                      class="profile-avatar">
             </section>
         {% endif %}
+
     {% else %}
         <p>This user hasn't created a freelancer profile yet.</p>
     {% endif %}
 
     {% if request.user == profile_user %}
         <p>
-            <a href="{% url 'profile_edit' profile_user.pk %}" class="btn">Edit Profile</a>
+            <a href="{% url 'profile_edit' profile_user.pk %}" class="btn">
+                Edit Profile
+            </a>
+
+            <a href="{% url 'portfolio_create' %}" class="btn btn-primary">
+                Add Portfolio Item
+            </a>
         </p>
     {% endif %}
 </div>

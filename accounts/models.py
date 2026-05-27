@@ -85,3 +85,33 @@ class FreelancerProfile(models.Model):
         verbose_name_plural = "Freelancer Profiles"
         # These control the display name in the Django admin sidebar.
         # Without them, Django shows "Freelancer profiles" (lowercase 'p').
+
+class PortfolioItem(models.Model):
+    """
+    A showcase item in a freelancer's portfolio.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='portfolio_items'
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    image = models.ImageField(
+        upload_to='portfolio/',
+        null=True,
+        blank=True
+    )
+    link = models.URLField(
+        blank=True,
+        help_text="Optional external link to live project or case study."
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Portfolio Item"
+        verbose_name_plural = "Portfolio Items"
+
+    def __str__(self):
+        return f"{self.user.username} – {self.title}"

@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Dashboard | CraftFlow{% endblock %}
-
 {% block content %}
 <div class="dashboard">
-    <!-- Welcome & Profile Nudge -->
     <div class="dashboard-header reveal">
         <h1>Welcome, {{ request.user.username }} 👋</h1>
         {% if profile_incomplete %}
@@ -15,107 +13,132 @@
         {% endif %}
     </div>
 
-    <!-- Stats Grid -->
-    <div class="stats-grid reveal">
-        <!-- Client Stats -->
-        <div class="stat-card stat-card-client">
-            <h3>🏢 Your Client Activity</h3>
-            <div class="stat-row">
-                <span>Total Jobs Posted</span>
-                <strong>{{ total_posted }}</strong>
+    <!-- Tab Navigation -->
+    <div class="dashboard-tabs reveal">
+        <button class="tab-button active" data-tab="client">🏢 Client Activity</button>
+        <button class="tab-button" data-tab="freelancer">💼 Freelancer Activity</button>
+    </div>
+
+    <!-- Client Tab -->
+    <div class="tab-content active" id="tab-client">
+        <div class="stats-grid">
+            <div class="stat-card stat-card-client">
+                <h3>Total Jobs Posted</h3>
+                <p>{{ total_posted }}</p>
             </div>
-            <div class="stat-row">
-                <span>Open Jobs</span>
-                <strong>{{ open_client_jobs }}</strong>
+            <div class="stat-card">
+                <h3>Open Jobs</h3>
+                <p>{{ open_client_jobs }}</p>
             </div>
-            <div class="stat-row">
-                <span>In Progress</span>
-                <strong>{{ in_progress_client_jobs }}</strong>
+            <div class="stat-card">
+                <h3>In Progress</h3>
+                <p>{{ in_progress_client_jobs }}</p>
             </div>
-            <div class="stat-row">
-                <span>Completed</span>
-                <strong>{{ total_completed_client }}</strong>
+            <div class="stat-card">
+                <h3>Completed</h3>
+                <p>{{ total_completed_client }}</p>
             </div>
-            <div class="stat-row">
-                <span>Total Spent</span>
-                <strong>${{ total_spent|floatformat:2 }}</strong>
+            <div class="stat-card">
+                <h3>Total Spent</h3>
+                <p>${{ total_spent|floatformat:2 }}</p>
             </div>
         </div>
 
-        <!-- Freelancer Stats -->
-        <div class="stat-card stat-card-freelancer">
-            <h3>💼 Your Freelancer Activity</h3>
-            <div class="stat-row">
-                <span>Total Bids</span>
-                <strong>{{ total_bids }}</strong>
+        {% if total_posted > 0 %}
+            <div class="quick-actions">
+                <a href="{% url 'job_create' %}" class="btn btn-primary">➕ Post a Job</a>
+                <a href="{% url 'job_list' %}" class="btn">🔍 Browse Jobs</a>
             </div>
-            <div class="stat-row">
-                <span>Active Bids</span>
-                <strong>{{ active_bids }}</strong>
+            <!-- Recent Jobs You Posted -->
+            {% if recent_activity and total_bids == 0 %}  <!-- only when no freelancer bids exist -->
+                <section class="recent-activity reveal">
+                    <h2>Recent Jobs You Posted</h2>
+                    <ul>
+                        {% for job in recent_activity %}
+                            <li>
+                                <a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a>
+                                <span class="text-muted"> — {{ job.created_at|date:"M d" }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <p>You haven't posted any jobs yet.</p>
+                <a href="{% url 'job_create' %}" class="btn btn-primary">Post Your First Job</a>
             </div>
-            <div class="stat-row">
-                <span>Accepted Bids</span>
-                <strong>{{ total_accepted }}</strong>
+        {% endif %}
+    </div>
+
+    <!-- Freelancer Tab -->
+    <div class="tab-content" id="tab-freelancer">
+        <div class="stats-grid">
+            <div class="stat-card stat-card-freelancer">
+                <h3>Total Bids</h3>
+                <p>{{ total_bids }}</p>
             </div>
-            <div class="stat-row">
-                <span>Completed Projects</span>
-                <strong>{{ total_completed_freelancer }}</strong>
+            <div class="stat-card">
+                <h3>Active Bids</h3>
+                <p>{{ active_bids }}</p>
             </div>
-            <div class="stat-row">
-                <span>Total Earned</span>
-                <strong>${{ total_earned|floatformat:2 }}</strong>
+            <div class="stat-card">
+                <h3>Accepted</h3>
+                <p>{{ total_accepted }}</p>
             </div>
-            <div class="stat-row">
-                <span>Completion Rate</span>
-                <strong>{{ completion_rate|floatformat:0 }}%</strong>
+            <div class="stat-card">
+                <h3>Completed Projects</h3>
+                <p>{{ total_completed_freelancer }}</p>
             </div>
-            <div class="stat-row">
-                <span>Avg. Rating</span>
-                <strong>
+            <div class="stat-card">
+                <h3>Total Earned</h3>
+                <p>${{ total_earned|floatformat:2 }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Completion Rate</h3>
+                <p>{{ completion_rate|floatformat:0 }}%</p>
+            </div>
+            <div class="stat-card">
+                <h3>Rating</h3>
+                <p>
                     {% if review_count > 0 %}
-                        ⭐ {{ avg_rating|floatformat:1 }} ({{ review_count }} reviews)
+                        ⭐ {{ avg_rating|floatformat:1 }} ({{ review_count }})
                     {% else %}
                         No reviews yet
                     {% endif %}
-                </strong>
+                </p>
             </div>
         </div>
+
+        {% if total_bids > 0 %}
+            <div class="quick-actions">
+                <a href="{% url 'job_list' %}" class="btn btn-primary">🔍 Find More Work</a>
+                <a href="{% url 'saved_jobs' %}" class="btn">❤️ Saved Jobs ({{ saved_count }})</a>
+            </div>
+            <!-- Recent Bids -->
+            {% if recent_activity and total_bids > 0 %}
+                <section class="recent-activity reveal">
+                    <h2>Recent Bids</h2>
+                    <ul>
+                        {% for bid in recent_activity %}
+                            <li>
+                                You bid <strong>${{ bid.amount|floatformat:2 }}</strong> on 
+                                <a href="{% url 'job_detail' bid.job.pk %}">{{ bid.job.title }}</a>
+                                <span class="text-muted"> — {{ bid.created_at|date:"M d" }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <p>You haven't submitted any bids yet.</p>
+                <a href="{% url 'job_list' %}" class="btn btn-primary">Browse Jobs</a>
+            </div>
+        {% endif %}
     </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions reveal">
-        <a href="{% url 'job_create' %}" class="btn btn-primary">➕ Post a Job</a>
-        <a href="{% url 'job_list' %}" class="btn">🔍 Browse Jobs</a>
-        <a href="{% url 'saved_jobs' %}" class="btn">❤️ Saved Jobs ({{ saved_count }})</a>
-    </div>
-
-    <!-- Recent Activity -->
-    {% if recent_activity %}
-        <section class="recent-activity reveal">
-            <h2>Recent Activity</h2>
-            <ul>
-                {% if total_bids > 0 %}
-                    {% for bid in recent_activity %}
-                        <li>
-                            You bid <strong>${{ bid.amount|floatformat:2 }}</strong> on 
-                            <a href="{% url 'job_detail' bid.job.pk %}">{{ bid.job.title }}</a>
-                            <span class="text-muted"> — {{ bid.created_at|date:"M d" }}</span>
-                        </li>
-                    {% endfor %}
-                {% else %}
-                    {% for job in recent_activity %}
-                        <li>
-                            You posted 
-                            <a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a>
-                            <span class="text-muted"> — {{ job.created_at|date:"M d" }}</span>
-                        </li>
-                    {% endfor %}
-                {% endif %}
-            </ul>
-        </section>
-    {% endif %}
-
-    <!-- Recommended Jobs -->
+    <!-- Recommended Jobs (always visible) -->
     {% if recommended_jobs %}
         <section class="recent-jobs reveal">
             <h2>Recommended for You</h2>
@@ -127,4 +150,28 @@
         </section>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tab switching logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Add active class to clicked button and corresponding content
+                this.classList.add('active');
+                document.getElementById('tab-' + tabId).classList.add('active');
+            });
+        });
+    });
+</script>
 {% endblock %}
