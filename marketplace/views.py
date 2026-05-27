@@ -108,6 +108,9 @@ def job_detail(request, pk):
     job = get_object_or_404(Job, pk=pk)
     bids = job.bids.all().select_related('freelancer').order_by('-created_at')
 
+        # Get review for this job (if any)
+    review = Review.objects.filter(job=job).first()
+
     user_has_bid = False
     is_saved = False
     if request.user.is_authenticated:
@@ -124,6 +127,7 @@ def job_detail(request, pk):
     context = {
         'job': job,
         'bids': bids,
+        'review': review,
         'user_has_bid': user_has_bid,
         'is_saved': is_saved,
         'verified_freelancer_ids': verified_freelancer_ids,

@@ -111,4 +111,40 @@
         </div>
     {% endif %}
 </section>
+
+<!-- Review (if job completed and review exists) -->
+{% if job.status == 'completed' and review %}
+    <section class="review-section reveal">
+        <h2>Review</h2>
+        <div class="review-card">
+            <div class="review-header">
+                <strong>{{ review.reviewer.username }}</strong> reviewed <strong>{{ review.reviewee.username }}</strong>
+                <span class="review-date">{{ review.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="review-ratings">
+                <div class="rating-item">
+                    <span>Overall</span>
+                    <span class="stars">{% include 'components/stars.html' with rating=review.rating %}</span>
+                </div>
+                <div class="rating-item">
+                    <span>Communication</span>
+                    <span class="stars">{% include 'components/stars.html' with rating=review.communication_rating %}</span>
+                </div>
+                <div class="rating-item">
+                    <span>Quality</span>
+                    <span class="stars">{% include 'components/stars.html' with rating=review.quality_rating %}</span>
+                </div>
+                <div class="rating-item">
+                    <span>Timeliness</span>
+                    <span class="stars">{% include 'components/stars.html' with rating=review.timeliness_rating %}</span>
+                </div>
+            </div>
+            {% if review.comment %}
+                <div class="review-comment">
+                    <p>{{ review.comment }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}
 {% endblock %}

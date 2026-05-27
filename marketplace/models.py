@@ -193,12 +193,37 @@ class Review(models.Model):
         # We restrict to 1–5 via choices.
     )
 
+        # Multi‑facet ratings (1‑5)
+    communication_rating = models.PositiveSmallIntegerField(
+        choices=[(i, i) for i in range(1, 6)],
+        default=0,
+        help_text="Rate the freelancer's communication."
+    )
+    quality_rating = models.PositiveSmallIntegerField(
+        choices=[(i, i) for i in range(1, 6)],
+        default=0,
+        help_text="Rate the quality of the work delivered."
+    )
+    timeliness_rating = models.PositiveSmallIntegerField(
+        choices=[(i, i) for i in range(1, 6)],
+        default=0,
+        help_text="Rate the freelancer's timeliness."
+    )
+
     comment = models.TextField(
         blank=True,
         help_text="Share your experience working on this project."
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # If overall rating not manually set, compute average of sub‑ratings
+        if self.pk is None and self.rating == 0:  # new review and rating not set
+            ratings = [self.communication_rating, self.quality_rating, self.timeliness_rating]
+            if all(r > 0 for r in ratings):
+                self.rating = round(sum(ratings) / 3, 1)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Review for {self.reviewee.username} on '{self.job.title}' — {self.rating}★"

@@ -40,7 +40,7 @@ class BidAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('job', 'reviewer', 'reviewee', 'rating', 'created_at')
+    list_display = ('job', 'reviewer', 'reviewee', 'rating', 'communication_rating', 'quality_rating', 'timeliness_rating', 'created_at')
     list_filter = ('rating', 'created_at')
     search_fields = ('job__title', 'reviewer__username', 'reviewee__username')
     raw_id_fields = ('job', 'reviewer', 'reviewee')

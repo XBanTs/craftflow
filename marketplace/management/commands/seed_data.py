@@ -173,17 +173,21 @@ class Command(BaseCommand):
                 reviewer=client_reviewer,
                 reviewee=freelancer_reviewee,
                 defaults={
-                    'rating': 5,
+                    'communication_rating': 5,
+                    'quality_rating': 5,
+                    'timeliness_rating': 4,
                     'comment': 'Excellent work, delivered ahead of schedule!'
                 }
             )
-            # Also create a review from the freelancer → client (mutual)
+            # Freelancer → client review
             Review.objects.get_or_create(
                 job=completed_job,
                 reviewer=freelancer_reviewee,
                 reviewee=client_reviewer,
                 defaults={
-                    'rating': 5,
+                    'communication_rating': 5,
+                    'quality_rating': 5,
+                    'timeliness_rating': 5,
                     'comment': 'Great communication, clear requirements.'
                 }
             )
