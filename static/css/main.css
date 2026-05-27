@@ -587,6 +587,13 @@ a:hover {
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
 }
 
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+}
+
 .help-text {
     display: block;
     margin-top: var(--space-xs);

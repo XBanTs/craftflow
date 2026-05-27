@@ -306,4 +306,39 @@ class SavedJob(models.Model):
         verbose_name_plural = "Saved Jobs"
 
     def __str__(self):
-        return f"{self.user.username} saved '{self.job.title}'"        
+        return f"{self.user.username} saved '{self.job.title}'"  
+
+
+class BidDraft(models.Model):
+    """
+    Stores an in‑progress bid proposal that a freelancer hasn't submitted yet.
+    Unique per user and job – only one draft per freelancer per job.   
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='bid_drafts'
+    )
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.CASCADE,
+        related_name='bid_drafts'
+    )
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
+    proposal = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['user', 'job']
+        ordering = ['-updated_at']
+        verbose_name = "Bid Draft"
+        verbose_name_plural = "Bid Drafts"
+
+    def __str__(self):
+        return f"Draft by {self.user.username} for '{self.job.title}'"

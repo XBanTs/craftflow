@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models import Q, Sum, Avg
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Job, Bid, SavedJob, Review
+from .models import Job, Bid, SavedJob, Review, BidDraft
 from .forms import JobForm, BidForm
 from accounts.models import FreelancerProfile
 from .utils import get_client_ratings
@@ -308,28 +308,68 @@ def bid_create(request, job_pk):
     - Only one bid per freelancer per job.
     """
     job = get_object_or_404(Job, pk=job_pk)
-    if job.status != 'open':
-        messages.error(request, 'This job is not open for bidding.')
-        return redirect('job_detail', pk=job_pk)
+
     if job.client == request.user:
         messages.error(request, 'You cannot bid on your own job.')
         return redirect('job_detail', pk=job_pk)
+
+    if job.status != 'open':
+        messages.error(request, 'This job is no longer open for bidding.')
+        return redirect('job_detail', pk=job_pk)
+
     if Bid.objects.filter(job=job, freelancer=request.user).exists():
         messages.error(request, 'You have already submitted a bid for this job.')
         return redirect('job_detail', pk=job_pk)
+
+    # Check for existing draft
+    draft = BidDraft.objects.filter(user=request.user, job=job).first()
+
     if request.method == 'POST':
+        # Determine which button was clicked: 'submit' or 'save_draft'
+        action = request.POST.get('action', 'submit')
+
         form = BidForm(request.POST)
         if form.is_valid():
-            bid = form.save(commit=False)
-            bid.job = job
-            bid.freelancer = request.user
-            bid.status = 'pending'
-            bid.save()
-            messages.success(request, 'Your bid has been submitted!')
-            return redirect('job_detail', pk=job_pk)
+            if action == 'save_draft':
+                # Save as draft
+                draft_data = form.cleaned_data
+                BidDraft.objects.update_or_create(
+                    user=request.user,
+                    job=job,
+                    defaults={
+                        'amount': draft_data['amount'],
+                        'proposal': draft_data['proposal'],
+                    }
+                )
+                messages.success(request, 'Your proposal has been saved as a draft.')
+                return redirect('job_detail', pk=job_pk)
+            else:
+                # Submit the bid
+                bid = form.save(commit=False)
+                bid.job = job
+                bid.freelancer = request.user
+                bid.status = 'pending'
+                bid.save()
+                # Delete any existing draft
+                if draft:
+                    draft.delete()
+                messages.success(request, 'Your bid has been submitted successfully!')
+                return redirect('job_detail', pk=job_pk)
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
-        form = BidForm()
-    return render(request, 'marketplace/bid_form.html', {'form': form, 'job': job})
+        # Pre‑fill form from draft if exists
+        initial = {}
+        if draft:
+            initial['amount'] = draft.amount
+            initial['proposal'] = draft.proposal
+        form = BidForm(initial=initial)
+
+    return render(request, 'marketplace/bid_form.html', {
+        'form': form,
+        'job': job,
+        'draft': draft,
+    })
 
 
 @login_required

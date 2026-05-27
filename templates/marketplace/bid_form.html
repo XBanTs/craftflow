@@ -13,6 +13,13 @@
         <p>{{ job.description|truncatewords:50 }}</p>
     </div>
 
+    {% if draft %}
+        <div class="alert alert-info">
+            You have a saved draft from {{ draft.updated_at|date:"M d, Y" }}. 
+            You can edit and submit it below, or save again.
+        </div>
+    {% endif %}
+
     <form method="post" class="auth-form">
         {% csrf_token %}
 
@@ -35,8 +42,11 @@
             </div>
         {% endfor %}
 
-        <button type="submit" class="btn btn-primary">Submit Bid</button>
-        <a href="{% url 'job_detail' job.pk %}" class="btn">Cancel</a>
+        <div class="form-actions">
+            <button type="submit" name="action" value="submit" class="btn btn-primary">Submit Bid</button>
+            <button type="submit" name="action" value="save_draft" class="btn">Save as Draft</button>
+            <a href="{% url 'job_detail' job.pk %}" class="btn">Cancel</a>
+        </div>
     </form>
 </div>
 {% endblock %}
