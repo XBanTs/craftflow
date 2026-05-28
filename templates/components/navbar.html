@@ -10,26 +10,26 @@
 
         <div class="navbar-links" id="navbarLinks">
             {% if request.user.is_authenticated %}
-                <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
-                <a href="{% url 'job_list' %}" class="nav-link">Browse Jobs</a>
-                <a href="{% url 'job_create' %}" class="nav-link">Post a Job</a>
+                <a href="{% url 'dashboard' %}" class="nav-link">📊 Dashboard</a>
+                <a href="{% url 'job_list' %}" class="nav-link">🔍 Browse Jobs</a>
+                <a href="{% url 'job_create' %}" class="nav-link">➕ Post a Job</a>
 
                 <!-- Bids with badge -->
                 <a href="{% url 'my_bids' %}" class="nav-link">
-                    My Bids
+                    💰 My Bids
                     <span class="badge-nav">{{ request.user.bids_submitted.count }}</span>
                 </a>
 
                 <!-- Saved Jobs with badge -->
                 <a href="{% url 'saved_jobs' %}" class="nav-link">
-                    Saved Jobs
+                    ❤️ Saved
                     <span class="badge-nav">{{ request.user.saved_jobs.count }}</span>
                 </a>
 
-                <!-- User dropdown -->
+                <!-- User dropdown (works on both desktop and mobile) -->
                 <div class="user-dropdown">
                     <button class="user-dropdown-btn nav-link" id="userDropdownBtn">
-                        {{ request.user.username }} ▾
+                        👤 {{ request.user.username }} ▾
                     </button>
                     <div class="user-dropdown-content" id="userDropdownContent">
                         <a href="{% url 'profile' request.user.pk %}">My Profile</a>
@@ -42,7 +42,7 @@
                 </div>
             {% else %}
                 <a href="{% url 'login' %}" class="nav-link">Login</a>
-                <a href="{% url 'register' %}" class="nav-link btn btn-primary" style="padding:0.4rem 1rem;">Get Started</a>
+                <a href="{% url 'register' %}" class="nav-link btn btn-primary" style="padding:0.4rem 1rem; border-radius: 0.5rem;">Get Started</a>
             {% endif %}
         </div>
     </div>

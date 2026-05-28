@@ -1,4 +1,3 @@
-
 /* ============================================================
    CraftFlow – Premium Main Stylesheet
    Clean, modern, premium freelance marketplace UI
@@ -210,28 +209,23 @@ a:hover {
     color: var(--text-muted);
 }
 
-/* -------------------------------------------------------
-   Navbar
-   ------------------------------------------------------- */
-
+/* ========== NAVBAR ========== */
 .navbar {
-    background: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.92);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(229, 231, 235, 0.5);
     position: sticky;
     top: 0;
     z-index: 100;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
-
 .navbar-inner {
     display: flex;
     justify-content: space-between;
     align-items: center;
     height: 4rem;
+    padding: 0 1.5rem;
 }
-
-/* Brand */
-
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: 800;
@@ -239,91 +233,131 @@ a:hover {
     text-decoration: none;
     white-space: nowrap;
 }
+.navbar-brand:hover { text-decoration: none; color: var(--primary-hover); }
 
-.navbar-brand:hover {
-    text-decoration: none;
-    color: var(--primary-hover);
-}
-
-/* Mobile Toggle */
-
+/* Toggle button */
 .navbar-toggle {
     display: none;
     background: none;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 0.4rem 0.6rem;
-    font-size: 1.5rem;
-    color: var(--text);
     cursor: pointer;
+    font-size: 1.5rem;
     line-height: 1;
+    color: var(--text);
     transition: color 0.2s;
 }
+.navbar-toggle:hover { color: var(--primary); }
 
-.navbar-toggle:hover {
-    color: var(--primary);
-}
-
-/* Links */
-
+/* Links container */
 .navbar-links {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
+    gap: 0.25rem;
 }
-
 .nav-link {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: var(--text-muted);
     padding: 0.5rem 0.75rem;
     border-radius: var(--radius-sm);
     transition: all 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
 }
-
 .nav-link:hover {
     background: var(--primary-light);
     color: var(--primary);
     text-decoration: none;
 }
 
-/* Logout */
-
-.logout-form {
-    margin: 0;
+/* Badge */
+.badge-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    padding: 0 5px;
+    margin-left: 4px;
+    vertical-align: middle;
 }
 
-.btn-logout {
+/* User dropdown */
+.user-dropdown {
+    position: relative;
+}
+.user-dropdown-btn {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+.user-dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    min-width: 160px;
+    z-index: 200;
+    overflow: hidden;
+    margin-top: 0.25rem;
+}
+.user-dropdown-content a,
+.user-dropdown-content form button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+    color: var(--text);
     background: none;
     border: none;
     cursor: pointer;
+    text-decoration: none;
     font-family: inherit;
-    font-size: inherit;
+}
+.user-dropdown-content a:hover,
+.user-dropdown-content form button:hover {
+    background: var(--bg);
+}
+.user-dropdown.active .user-dropdown-content {
+    display: block;
+}
+
+/* Logout button inline */
+.logout-form { margin: 0; }
+.btn-logout {
+    background: none;
+    border: none;
+    font: inherit;
     font-weight: 500;
     color: var(--text-muted);
+    cursor: pointer;
     padding: 0.5rem 0.75rem;
     border-radius: var(--radius-sm);
     transition: all 0.2s;
 }
+.btn-logout:hover { background: var(--primary-light); color: var(--primary); }
 
-.btn-logout:hover {
-    background: var(--primary-light);
-    color: var(--primary);
-}
-
-/* -------------------------------------------------------
-   Mobile Navbar
-   ------------------------------------------------------- */
-
+/* ========== MOBILE NAVBAR ========== */
 @media (max-width: 768px) {
-
     .navbar-toggle {
         display: block;
     }
 
     .navbar-links {
-        display: block;               /* start hidden via max-height trick */
+        display: block;           /* needed for height animation */
         max-height: 0;
         overflow: hidden;
         position: absolute;
@@ -332,16 +366,14 @@ a:hover {
         right: 0;
         background: white;
         flex-direction: column;
-        gap: 0.25rem;
         padding: 0 1rem;
         box-shadow: var(--shadow-lg);
         border-top: 1px solid var(--border);
         transition: max-height 0.3s ease, padding 0.3s ease;
+        z-index: 150;
     }
-     
-    /* Active state – slide open */
     .navbar-links.active {
-        max-height: 500px;            /* large enough to show all links */
+        max-height: 600px;
         padding: 1rem;
     }
 
@@ -349,9 +381,28 @@ a:hover {
         width: 100%;
         padding: 0.75rem 1rem;
         text-align: left;
+        border-radius: var(--radius-sm);
     }
-    .logout-form { width: 100%; }
-    .btn-logout { width: 100%; text-align: left; padding: 0.75rem 1rem; }
+
+    /* User dropdown inside mobile menu */
+    .user-dropdown {
+        width: 100%;
+    }
+    .user-dropdown-btn {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .user-dropdown-content {
+        position: static;
+        box-shadow: none;
+        border: none;
+        margin-top: 0;
+        padding-left: 1rem;
+    }
+    .user-dropdown-content a,
+    .user-dropdown-content form button {
+        padding: 0.65rem 1rem;
+    }
 
     .filter-row {
         flex-direction: column;
@@ -947,64 +998,6 @@ a:hover {
 .badge-status { background: #FEF3C7; color: #92400E; }
 .badge-budget { background: #D1FAE5; color: #065F46; }
 .badge-category { background: #E0E7FF; color: #3730A3; }
-
-/* Nav badge */
-.badge-nav {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--primary-light);
-    color: var(--primary);
-    font-size: 0.75rem;
-    font-weight: 600;
-    min-width: 20px;
-    height: 20px;
-    border-radius: 10px;
-    padding: 0 5px;
-    margin-left: 4px;
-    vertical-align: middle;
-}
-
-/* User dropdown */
-.user-dropdown {
-    position: relative;
-}
-.user-dropdown-btn {
-    cursor: pointer;
-}
-.user-dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-md);
-    min-width: 160px;
-    z-index: 200;
-    overflow: hidden;
-}
-.user-dropdown-content a,
-.user-dropdown-content form button {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 0.65rem 1rem;
-    font-size: 0.9rem;
-    color: var(--text);
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-}
-.user-dropdown-content a:hover,
-.user-dropdown-content form button:hover {
-    background: var(--bg);
-}
-.user-dropdown.active .user-dropdown-content {
-    display: block;
-}
 
 /* -------------------------------------------------------
    Stats Grid
