@@ -18,6 +18,9 @@ urlpatterns = [
     path('my-bids/', views.my_bids, name='my_bids'),
     path('bids/<int:pk>/edit/', views.bid_edit, name='bid_edit'),
     path('bids/<int:pk>/delete/', views.bid_delete, name='bid_delete'),
+    path('bids/<int:pk>/accept/', views.bid_accept, name='bid_accept'),
+    path('bids/<int:pk>/reject/', views.bid_reject, name='bid_reject'),
+    path('notifications/<int:pk>/read/', views.mark_notification_read, name='mark_notification_read'),
 
     # API endpoints
     path('api/jobs/', api_views.JobListCreateAPIView.as_view(), name='api_job_list'),
@@ -25,4 +28,5 @@ urlpatterns = [
     path('api/bids/', api_views.BidCreateAPIView.as_view(), name='api_bid_create'),
     path('api/services/', api_views.ServiceListAPIView.as_view(), name='api_service_list'),
     path('api/services/<int:pk>/', api_views.ServiceDetailAPIView.as_view(), name='api_service_detail'),
+    path('api/notifications/unread/', views.unread_notifications, name='unread_notifications'),
 ]

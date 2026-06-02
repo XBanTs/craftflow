@@ -45,7 +45,7 @@
         </div>
     </div>
 
-        <!-- Action buttons -->
+    <!-- Action buttons -->
     <div class="job-actions">
         {% if job.client != user %}
             {% if job.status == 'open' %}
@@ -92,15 +92,23 @@
                 <div class="bid-card">
                     <div class="bid-header">
                         <strong>
-                        {{ bid.freelancer.username }}
-                        {% if bid.freelancer.id in verified_freelancer_ids %}
-                            <span class="verified-badge" title="Verified Freelancer">✓</span>
-                        {% endif %}
-                    </strong>
+                            {{ bid.freelancer.username }}
+                            {% if bid.freelancer.id in verified_freelancer_ids %}
+                                <span class="verified-badge" title="Verified Freelancer">✓</span>
+                            {% endif %}
+                        </strong>
                         <span class="bid-amount">${{ bid.amount|floatformat:2 }}</span>
                         <span class="bid-status">({{ bid.get_status_display }})</span>
                     </div>
                     <p class="bid-proposal">{{ bid.proposal|linebreaks }}</p>
+
+                    {% if user == job.client and bid.status == 'pending' %}
+                        <div class="bid-actions" style="margin-top:0.5rem;">
+                            <a href="{% url 'bid_accept' bid.pk %}" class="btn btn-sm btn-primary">Accept</a>
+                            <a href="{% url 'bid_reject' bid.pk %}" class="btn btn-sm btn-danger">Reject</a>
+                        </div>
+                    {% endif %}
+
                     <small class="bid-date">{{ bid.created_at|date:"M d, Y" }}</small>
                 </div>
             {% endfor %}

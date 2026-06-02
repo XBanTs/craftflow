@@ -426,6 +426,50 @@ a:hover {
   }
 }
 
+
+/* Notification Bell */
+.notification-bell {
+    position: relative;
+    cursor: pointer;
+}
+.bell-icon {
+    font-size: 1.2rem;
+}
+.notification-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    min-width: 280px;
+    z-index: 300;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0;
+}
+.notification-dropdown.active {
+    display: block;
+}
+.notif-item {
+    display: block;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+.notif-item:hover {
+    background: var(--bg);
+    text-decoration: none;
+}
+.notif-item small {
+    color: var(--text-muted);
+}
+
+
 /* -------------------------------------------------------
    Hero Section
    ------------------------------------------------------- */

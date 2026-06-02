@@ -3,12 +3,14 @@ from django.db import models
 from django.db.models import Q, Sum, Avg
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Job, Bid, SavedJob, Review, BidDraft
+from .models import Job, Bid, SavedJob, Review, BidDraft, Notification
 from .forms import JobForm, BidForm
 from accounts.models import FreelancerProfile
 from datetime import timedelta
 from django.utils import timezone
 from .utils import get_client_ratings
+from django.http import JsonResponse
+from django.urls import reverse
 
 
 def home(request):
@@ -326,29 +328,32 @@ def bid_create(request, job_pk):
     """
     job = get_object_or_404(Job, pk=job_pk)
 
+    # Prevent bidding on own job
     if job.client == request.user:
         messages.error(request, 'You cannot bid on your own job.')
         return redirect('job_detail', pk=job_pk)
 
+    # Only open jobs can receive bids
     if job.status != 'open':
         messages.error(request, 'This job is no longer open for bidding.')
         return redirect('job_detail', pk=job_pk)
 
+    # One bid per freelancer per job
     if Bid.objects.filter(job=job, freelancer=request.user).exists():
         messages.error(request, 'You have already submitted a bid for this job.')
         return redirect('job_detail', pk=job_pk)
 
-    # Check for existing draft
+    # Check for an existing draft to pre-fill the form
     draft = BidDraft.objects.filter(user=request.user, job=job).first()
 
     if request.method == 'POST':
-        # Determine which button was clicked: 'submit' or 'save_draft'
+        # Determine which button was clicked: 'submit' (bid) or 'save_draft'
         action = request.POST.get('action', 'submit')
 
         form = BidForm(request.POST)
         if form.is_valid():
             if action == 'save_draft':
-                # Save as draft
+                # Save or update the draft
                 draft_data = form.cleaned_data
                 BidDraft.objects.update_or_create(
                     user=request.user,
@@ -361,21 +366,30 @@ def bid_create(request, job_pk):
                 messages.success(request, 'Your proposal has been saved as a draft.')
                 return redirect('job_detail', pk=job_pk)
             else:
-                # Submit the bid
+                # Submit the final bid
                 bid = form.save(commit=False)
                 bid.job = job
                 bid.freelancer = request.user
                 bid.status = 'pending'
                 bid.save()
-                # Delete any existing draft
+
+                # Clean up any existing draft
                 if draft:
                     draft.delete()
+
+                # Create notification for the job client
+                Notification.objects.create(
+                    user=job.client,
+                    message=f'{request.user.username} submitted a bid on your job "{job.title}".',
+                    link=f'/jobs/{job.pk}/'
+                )
+
                 messages.success(request, 'Your bid has been submitted successfully!')
                 return redirect('job_detail', pk=job_pk)
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
-        # Pre‑fill form from draft if exists
+        # GET request: pre-fill form from draft if available
         initial = {}
         if draft:
             initial['amount'] = draft.amount
@@ -470,3 +484,76 @@ def bid_delete(request, pk):
         return redirect('my_bids')
     return render(request, 'marketplace/bid_confirm_delete.html', {'bid': bid}) 
 
+
+@login_required
+def bid_accept(request, pk):
+    """Accept a pending bid (only job client)."""
+    bid = get_object_or_404(Bid, pk=pk, status='pending')
+    job = bid.job
+    if job.client != request.user:
+        messages.error(request, 'You do not have permission to accept this bid.')
+        return redirect('job_detail', pk=job.pk)
+
+    bid.status = 'accepted'
+    bid.save()
+    job.status = 'in_progress'
+    job.save()
+    # Notify the freelancer
+    Notification.objects.create(
+        user=bid.freelancer,
+        message=f'Your bid on "{job.title}" has been accepted!',
+        link=f'/jobs/{job.pk}/'
+    )
+    messages.success(request, f'You accepted {bid.freelancer.username}\'s bid.')
+    return redirect('job_detail', pk=job.pk)
+
+
+@login_required
+def bid_reject(request, pk):
+    """Reject a pending bid (only job client)."""
+    bid = get_object_or_404(Bid, pk=pk, status='pending')
+    job = bid.job
+    if job.client != request.user:
+        messages.error(request, 'You do not have permission to reject this bid.')
+        return redirect('job_detail', pk=job.pk)
+
+    bid.status = 'rejected'
+    bid.save()
+    # Notify the freelancer
+    Notification.objects.create(
+        user=bid.freelancer,
+        message=f'Your bid on "{job.title}" was rejected.',
+        link=f'/jobs/{job.pk}/'
+    )
+    messages.success(request, f'You rejected {bid.freelancer.username}\'s bid.')
+    return redirect('job_detail', pk=job.pk)    
+
+
+@login_required
+def unread_notifications(request):
+    """Return unread notification count and last 5 notifications as JSON."""
+    notifications = request.user.notifications.filter(is_read=False).order_by('-created_at')
+    count = notifications.count()
+    recent = notifications[:5]
+    data = {
+        'count': count,
+        'notifications': [
+            {
+                'id': n.id,
+                'message': n.message,
+                'link': n.link,
+                'read_url': reverse('mark_notification_read', args=[n.id]),
+                'created_at': n.created_at.strftime('%b %d, %Y %H:%M'),
+            } for n in recent
+        ]
+    }
+    return JsonResponse(data)
+
+
+@login_required
+def mark_notification_read(request, pk):
+    notification = get_object_or_404(Notification, pk=pk, user=request.user)
+    notification.is_read = True
+    notification.save()
+    # Redirect to the notification's link
+    return redirect(notification.link) if notification.link else redirect('dashboard')

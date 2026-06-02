@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Job, Bid, Review, Service, SavedJob, BidDraft
+from .models import Job, Bid, Review, Service, SavedJob, BidDraft, Notification
 
 
 @admin.register(Job)
@@ -66,3 +66,10 @@ class BidDraftAdmin(admin.ModelAdmin):
     list_display = ('user', 'job', 'amount', 'updated_at')
     search_fields = ('user__username', 'job__title')
     raw_id_fields = ('user', 'job')    
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'message', 'is_read', 'created_at')
+    list_filter = ('is_read',)
+    search_fields = ('user__username', 'message')    

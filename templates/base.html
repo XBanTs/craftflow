@@ -194,6 +194,54 @@
         }
 
     });
+
+
+            // ------ Notification Polling ------
+        function fetchNotifications() {
+            fetch('/api/notifications/unread/')
+                .then(response => response.json())
+                .then(data => {
+                    const countSpan = document.getElementById('notificationCount');
+                    const listDiv = document.getElementById('notificationList');
+                    if (data.count > 0) {
+                        countSpan.textContent = data.count;
+                        countSpan.style.display = 'inline-flex';
+                        // Populate dropdown with recent notifications
+                        let html = '';
+                        data.notifications.forEach(n => {
+                            html += `<a href="${n.read_url}" class="notif-item">${n.message}<br><small>${n.created_at}</small></a>`;
+                        });
+                        listDiv.innerHTML = html;
+                    } else {
+                        countSpan.style.display = 'none';
+                        listDiv.innerHTML = '<p class="text-muted">No new notifications</p>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Notification fetch error:', err);
+                });
+        }
+
+        // Fetch every 30 seconds
+        setInterval(fetchNotifications, 30000);
+        // Initial fetch
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchNotifications();
+            // Notification dropdown toggle
+            const bell = document.getElementById('notificationBell');
+            const dropdown = document.getElementById('notificationDropdown');
+            if (bell && dropdown) {
+                bell.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('active');
+                });
+                document.addEventListener('click', function(e) {
+                    if (!bell.contains(e.target)) {
+                        dropdown.classList.remove('active');
+                    }
+                });
+            }
+        });
 </script>
     
     {% block extra_js %}{% endblock %}

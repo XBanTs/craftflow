@@ -342,3 +342,26 @@ class BidDraft(models.Model):
 
     def __str__(self):
         return f"Draft by {self.user.username} for '{self.job.title}'"
+
+
+class Notification(models.Model):
+    """
+    Stores a notification for a user.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    message = models.CharField(max_length=255)
+    link = models.CharField(max_length=255, blank=True)   # e.g., /jobs/5/
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"
+
+    def __str__(self):
+        return f"Notification for {self.user.username}: {self.message[:50]}"        
