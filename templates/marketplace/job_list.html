@@ -8,7 +8,7 @@
 <!-- Filter Bar -->
 <form method="get" class="filter-bar reveal">
     <div class="filter-row">
-        <input type="text" name="q" value="{{ query }}" placeholder="Search jobs..." class="filter-input">
+        <input type="text" name="q" value="{{ query }}" placeholder="🔍 Search jobs..." class="filter-input">
 
         <select name="category" class="filter-select">
             <option value="">All Categories</option>
@@ -17,8 +17,21 @@
             {% endfor %}
         </select>
 
-        <input type="number" name="budget_min" value="{{ budget_min }}" placeholder="Min $" class="filter-input" min="0" step="1">
-        <input type="number" name="budget_max" value="{{ budget_max }}" placeholder="Max $" class="filter-input" min="0" step="1">
+        <input type="number" name="budget_min" value="{{ budget_min }}" placeholder="Min $" class="filter-input" min="0">
+        <input type="number" name="budget_max" value="{{ budget_max }}" placeholder="Max $" class="filter-input" min="0">
+
+        <select name="status" class="filter-select">
+            <option value="">All Statuses</option>
+            <option value="open" {% if status_filter == 'open' %}selected{% endif %}>Open</option>
+            <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+        </select>
+
+        <select name="posted_within" class="filter-select">
+            <option value="">Any Time</option>
+            <option value="24h" {% if posted_within == '24h' %}selected{% endif %}>Last 24 Hours</option>
+            <option value="7d" {% if posted_within == '7d' %}selected{% endif %}>Last 7 Days</option>
+            <option value="30d" {% if posted_within == '30d' %}selected{% endif %}>Last 30 Days</option>
+        </select>
 
         <select name="sort" class="filter-select">
             <option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>Newest</option>
@@ -27,7 +40,7 @@
             <option value="budget" {% if sort == 'budget' %}selected{% endif %}>Budget: Low to High</option>
         </select>
 
-        <button type="submit" class="btn btn-primary">Apply Filters</button>
+        <button type="submit" class="btn btn-primary">Apply</button>
         <a href="{% url 'job_list' %}" class="btn">Clear</a>
     </div>
 </form>

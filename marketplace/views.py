@@ -6,6 +6,8 @@ from django.contrib import messages
 from .models import Job, Bid, SavedJob, Review, BidDraft
 from .forms import JobForm, BidForm
 from accounts.models import FreelancerProfile
+from datetime import timedelta
+from django.utils import timezone
 from .utils import get_client_ratings
 
 
@@ -32,38 +34,53 @@ def home(request):
 
 
 def job_list(request):
-    # Base queryset: only active jobs
+    # Base queryset: active jobs only
     jobs = Job.objects.filter(status__in=['open', 'in_progress'])
 
-    # --- Filtering ---
+    # --- Existing filters ---
     query = request.GET.get('q', '')
     category = request.GET.get('category', '')
     budget_min = request.GET.get('budget_min', '')
     budget_max = request.GET.get('budget_max', '')
-    sort = request.GET.get('sort', '-created_at')  # default newest
+    sort = request.GET.get('sort', '-created_at')
+
+    # --- New filters: status and posted_within ---
+    status_filter = request.GET.get('status', '')
+    posted_within = request.GET.get('posted_within', '')
 
     # Text search
     if query:
         from django.db.models import Q
         jobs = jobs.filter(Q(title__icontains=query) | Q(description__icontains=query))
 
-    # Category filter
+    # Category
     if category:
         jobs = jobs.filter(category=category)
 
-    # Budget range filter
+    # Budget range
     if budget_min:
         try:
-            min_val = float(budget_min)
-            jobs = jobs.filter(budget__gte=min_val)
+            jobs = jobs.filter(budget__gte=float(budget_min))
         except ValueError:
             pass
     if budget_max:
         try:
-            max_val = float(budget_max)
-            jobs = jobs.filter(budget__lte=max_val)
+            jobs = jobs.filter(budget__lte=float(budget_max))
         except ValueError:
             pass
+
+    # Status filter (allow to show only open or in_progress explicitly)
+    if status_filter in ['open', 'in_progress']:
+        jobs = jobs.filter(status=status_filter)
+
+    # Posted within filter
+    now = timezone.now()
+    if posted_within == '24h':
+        jobs = jobs.filter(created_at__gte=now - timedelta(hours=24))
+    elif posted_within == '7d':
+        jobs = jobs.filter(created_at__gte=now - timedelta(days=7))
+    elif posted_within == '30d':
+        jobs = jobs.filter(created_at__gte=now - timedelta(days=30))
 
     # Sorting
     valid_sorts = ['-created_at', 'created_at', 'budget', '-budget']
@@ -71,20 +88,18 @@ def job_list(request):
         sort = '-created_at'
     jobs = jobs.order_by(sort)
 
-    # Optimize query
     jobs = jobs.select_related('client')
 
-    # Get saved job IDs for current user
+    # Saved job IDs
     saved_job_ids = []
     if request.user.is_authenticated:
         saved_job_ids = list(SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True))
 
-    # Prepare category choices for template
-    category_choices = Job.Category.choices
-
-    # client ratings
+    # Get client ratings for job cards
+    from .utils import get_client_ratings
     client_ratings, client_review_counts = get_client_ratings(jobs)
 
+    category_choices = Job.Category.choices
     context = {
         'jobs': jobs,
         'saved_job_ids': saved_job_ids,
@@ -93,6 +108,8 @@ def job_list(request):
         'budget_min': budget_min,
         'budget_max': budget_max,
         'sort': sort,
+        'status_filter': status_filter,
+        'posted_within': posted_within,
         'category_choices': category_choices,
         'client_ratings': client_ratings,
         'client_review_counts': client_review_counts,
