@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import models
-from django.db.models import Q, Sum, Avg
+from django.db.models import Q, Sum, Avg, Max
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Job, Bid, SavedJob, Review, BidDraft, Notification
+from django.contrib.auth.models import User
+from .models import Job, Bid, SavedJob, Review, BidDraft, Notification, Message
 from .forms import JobForm, BidForm
 from accounts.models import FreelancerProfile
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.utils import timezone
 from .utils import get_client_ratings
 from django.http import JsonResponse
@@ -22,7 +23,8 @@ def home(request):
     freelancer_count = FreelancerProfile.objects.count()
     saved_job_ids = []
     if request.user.is_authenticated:
-        saved_job_ids = list(SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True))
+        saved_job_ids = list(SavedJob.objects.filter(
+            user=request.user).values_list('job_id', flat=True))
     # client ratings
     client_ratings, client_review_counts = get_client_ratings(recent_jobs)
     return render(request, 'marketplace/home.html', {
@@ -53,7 +55,8 @@ def job_list(request):
     # Text search
     if query:
         from django.db.models import Q
-        jobs = jobs.filter(Q(title__icontains=query) | Q(description__icontains=query))
+        jobs = jobs.filter(Q(title__icontains=query) |
+                           Q(description__icontains=query))
 
     # Category
     if category:
@@ -95,7 +98,8 @@ def job_list(request):
     # Saved job IDs
     saved_job_ids = []
     if request.user.is_authenticated:
-        saved_job_ids = list(SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True))
+        saved_job_ids = list(SavedJob.objects.filter(
+            user=request.user).values_list('job_id', flat=True))
 
     # Get client ratings for job cards
     from .utils import get_client_ratings
@@ -127,13 +131,14 @@ def job_detail(request, pk):
     job = get_object_or_404(Job, pk=pk)
     bids = job.bids.all().select_related('freelancer').order_by('-created_at')
 
-        # Get review for this job (if any)
+    # Get review for this job (if any)
     review = Review.objects.filter(job=job).first()
 
     user_has_bid = False
     is_saved = False
     if request.user.is_authenticated:
-        user_has_bid = Bid.objects.filter(job=job, freelancer=request.user).exists()
+        user_has_bid = Bid.objects.filter(
+            job=job, freelancer=request.user).exists()
         is_saved = SavedJob.objects.filter(user=request.user, job=job).exists()
 
     # Collect verified freelancer IDs among all bidders
@@ -152,7 +157,6 @@ def job_detail(request, pk):
         'verified_freelancer_ids': verified_freelancer_ids,
     }
     return render(request, 'marketplace/job_detail.html', context)
-
 
 
 @login_required
@@ -221,7 +225,8 @@ def job_delete(request, pk):
     job = get_object_or_404(Job, pk=pk)
 
     if job.client != request.user:
-        messages.error(request, 'You do not have permission to delete this job.')
+        messages.error(
+            request, 'You do not have permission to delete this job.')
         return redirect('job_detail', pk=pk)
 
     if request.method == 'POST':
@@ -242,7 +247,8 @@ def dashboard(request):
     completed_client_jobs = client_jobs.filter(status='completed')
     total_completed_client = completed_client_jobs.count()
     # Total amount spent on completed jobs (budgets of those jobs)
-    total_spent = completed_client_jobs.aggregate(total=models.Sum('budget'))['total'] or 0
+    total_spent = completed_client_jobs.aggregate(
+        total=models.Sum('budget'))['total'] or 0
 
     # ---------- Freelancer Stats ----------
     freelancer_bids = Bid.objects.filter(freelancer=request.user)
@@ -254,31 +260,37 @@ def dashboard(request):
     completed_projects = accepted_bids.filter(job__status='completed')
     total_completed_freelancer = completed_projects.count()
     # Total earned (sum of accepted bid amounts on completed projects)
-    total_earned = completed_projects.aggregate(total=models.Sum('amount'))['total'] or 0
+    total_earned = completed_projects.aggregate(
+        total=models.Sum('amount'))['total'] or 0
     # Completion rate (percentage of accepted bids that ended in completed jobs)
-    completion_rate = (total_completed_freelancer / total_accepted * 100) if total_accepted > 0 else 0
+    completion_rate = (total_completed_freelancer /
+                       total_accepted * 100) if total_accepted > 0 else 0
     # Average rating received
     reviews_received = Review.objects.filter(reviewee=request.user)
-    avg_rating = reviews_received.aggregate(avg=models.Avg('rating'))['avg'] or 0
+    avg_rating = reviews_received.aggregate(
+        avg=models.Avg('rating'))['avg'] or 0
     review_count = reviews_received.count()
 
     # ---------- General Activity ----------
     # Recent bids (for freelancers) or recent jobs posted (for clients)
     recent_activity = []
     if total_bids > 0:
-        recent_activity = freelancer_bids.select_related('job').order_by('-created_at')[:5]
+        recent_activity = freelancer_bids.select_related(
+            'job').order_by('-created_at')[:5]
     elif total_posted > 0:
         recent_activity = client_jobs.order_by('-created_at')[:5]
 
     # ---------- Recommended Jobs (existing) ----------
     open_jobs_count = Job.objects.filter(status='open').count()
-    recommended_jobs = Job.objects.filter(status='open').exclude(client=request.user).order_by('-created_at')[:5]
+    recommended_jobs = Job.objects.filter(status='open').exclude(
+        client=request.user).order_by('-created_at')[:5]
 
     # ---------- Saved Job Count ----------
     saved_count = SavedJob.objects.filter(user=request.user).count()
 
     # ---------- Saved Job IDs (for bookmark icons) ----------
-    saved_job_ids = list(SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True))
+    saved_job_ids = list(SavedJob.objects.filter(
+        user=request.user).values_list('job_id', flat=True))
 
     # ---------- Profile Completion Check ----------
     try:
@@ -288,7 +300,7 @@ def dashboard(request):
         profile_incomplete = True
 
     # client ratings
-    client_ratings, client_review_counts = get_client_ratings(recommended_jobs)    
+    client_ratings, client_review_counts = get_client_ratings(recommended_jobs)
 
     context = {
         # Client
@@ -318,6 +330,7 @@ def dashboard(request):
     }
     return render(request, 'marketplace/dashboard.html', context)
 
+
 @login_required
 def bid_create(request, job_pk):
     """
@@ -340,7 +353,8 @@ def bid_create(request, job_pk):
 
     # One bid per freelancer per job
     if Bid.objects.filter(job=job, freelancer=request.user).exists():
-        messages.error(request, 'You have already submitted a bid for this job.')
+        messages.error(
+            request, 'You have already submitted a bid for this job.')
         return redirect('job_detail', pk=job_pk)
 
     # Check for an existing draft to pre-fill the form
@@ -363,7 +377,8 @@ def bid_create(request, job_pk):
                         'proposal': draft_data['proposal'],
                     }
                 )
-                messages.success(request, 'Your proposal has been saved as a draft.')
+                messages.success(
+                    request, 'Your proposal has been saved as a draft.')
                 return redirect('job_detail', pk=job_pk)
             else:
                 # Submit the final bid
@@ -384,7 +399,8 @@ def bid_create(request, job_pk):
                     link=f'/jobs/{job.pk}/'
                 )
 
-                messages.success(request, 'Your bid has been submitted successfully!')
+                messages.success(
+                    request, 'Your bid has been submitted successfully!')
                 return redirect('job_detail', pk=job_pk)
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -445,20 +461,22 @@ def saved_jobs(request):
         'jobs': saved_jobs_list,
         'saved_job_ids': [job.pk for job in saved_jobs_list],  # all are saved
     }
-    return render(request, 'marketplace/saved_jobs.html', context) 
+    return render(request, 'marketplace/saved_jobs.html', context)
 
 
 @login_required
 def my_bids(request):
     """List all bids made by the logged-in freelancer, with edit/delete actions."""
-    bids = Bid.objects.filter(freelancer=request.user).select_related('job').order_by('-created_at')
+    bids = Bid.objects.filter(freelancer=request.user).select_related(
+        'job').order_by('-created_at')
     return render(request, 'marketplace/my_bids.html', {'bids': bids})
 
 
 @login_required
 def bid_edit(request, pk):
     """Edit a pending bid."""
-    bid = get_object_or_404(Bid, pk=pk, freelancer=request.user, status='pending')
+    bid = get_object_or_404(
+        Bid, pk=pk, freelancer=request.user, status='pending')
     if request.method == 'POST':
         form = BidForm(request.POST, instance=bid)
         if form.is_valid():
@@ -477,12 +495,13 @@ def bid_edit(request, pk):
 @login_required
 def bid_delete(request, pk):
     """Delete a pending bid."""
-    bid = get_object_or_404(Bid, pk=pk, freelancer=request.user, status='pending')
+    bid = get_object_or_404(
+        Bid, pk=pk, freelancer=request.user, status='pending')
     if request.method == 'POST':
         bid.delete()
         messages.success(request, 'Bid deleted.')
         return redirect('my_bids')
-    return render(request, 'marketplace/bid_confirm_delete.html', {'bid': bid}) 
+    return render(request, 'marketplace/bid_confirm_delete.html', {'bid': bid})
 
 
 @login_required
@@ -491,7 +510,8 @@ def bid_accept(request, pk):
     bid = get_object_or_404(Bid, pk=pk, status='pending')
     job = bid.job
     if job.client != request.user:
-        messages.error(request, 'You do not have permission to accept this bid.')
+        messages.error(
+            request, 'You do not have permission to accept this bid.')
         return redirect('job_detail', pk=job.pk)
 
     bid.status = 'accepted'
@@ -504,7 +524,8 @@ def bid_accept(request, pk):
         message=f'Your bid on "{job.title}" has been accepted!',
         link=f'/jobs/{job.pk}/'
     )
-    messages.success(request, f'You accepted {bid.freelancer.username}\'s bid.')
+    messages.success(
+        request, f'You accepted {bid.freelancer.username}\'s bid.')
     return redirect('job_detail', pk=job.pk)
 
 
@@ -514,7 +535,8 @@ def bid_reject(request, pk):
     bid = get_object_or_404(Bid, pk=pk, status='pending')
     job = bid.job
     if job.client != request.user:
-        messages.error(request, 'You do not have permission to reject this bid.')
+        messages.error(
+            request, 'You do not have permission to reject this bid.')
         return redirect('job_detail', pk=job.pk)
 
     bid.status = 'rejected'
@@ -525,14 +547,16 @@ def bid_reject(request, pk):
         message=f'Your bid on "{job.title}" was rejected.',
         link=f'/jobs/{job.pk}/'
     )
-    messages.success(request, f'You rejected {bid.freelancer.username}\'s bid.')
-    return redirect('job_detail', pk=job.pk)    
+    messages.success(
+        request, f'You rejected {bid.freelancer.username}\'s bid.')
+    return redirect('job_detail', pk=job.pk)
 
 
 @login_required
 def unread_notifications(request):
     """Return unread notification count and last 5 notifications as JSON."""
-    notifications = request.user.notifications.filter(is_read=False).order_by('-created_at')
+    notifications = request.user.notifications.filter(
+        is_read=False).order_by('-created_at')
     count = notifications.count()
     recent = notifications[:5]
     data = {
@@ -557,3 +581,137 @@ def mark_notification_read(request, pk):
     notification.save()
     # Redirect to the notification's link
     return redirect(notification.link) if notification.link else redirect('dashboard')
+
+
+@login_required
+def inbox(request):
+    """
+    List all unique conversations for the logged‑in user.
+    A conversation is a pair (user, job). We show the latest message in each.
+    """
+    # Get all messages where user is sender or receiver, group by job and the other user
+    messages = Message.objects.filter(
+        Q(sender=request.user) | Q(receiver=request.user)
+    ).select_related('job', 'sender', 'receiver')
+
+    # Build a dict of unique conversations keyed by (job_id, other_user_id)
+    conversations = {}
+    for msg in messages:
+        # Determine the other user
+        if msg.sender == request.user:
+            other_user = msg.receiver
+        else:
+            other_user = msg.sender
+        key = (msg.job_id, other_user.id)
+        if key not in conversations or msg.created_at > conversations[key]['latest_msg'].created_at:
+            conversations[key] = {
+                'job': msg.job,
+                'other_user': other_user,
+                'latest_msg': msg,
+                'unread_count': Message.objects.filter(
+                    job=msg.job,
+                    sender=other_user,
+                    receiver=request.user,
+                    is_read=False
+                ).count()
+            }
+
+    # Sort conversations by latest message time descending
+    sorted_convos = sorted(conversations.values(
+    ), key=lambda x: x['latest_msg'].created_at, reverse=True)
+
+    return render(request, 'marketplace/inbox.html', {'conversations': sorted_convos})
+
+
+@login_required
+def conversation(request, job_pk, user_pk):
+    """
+    Show the full chat between the logged‑in user and another user on a specific job.
+    """
+    job = get_object_or_404(Job, pk=job_pk)
+    other_user = get_object_or_404(User, pk=user_pk)
+
+    # Ensure the logged‑in user is either the client or has bid on this job
+    if not (request.user == job.client or Bid.objects.filter(job=job, freelancer=request.user).exists()):
+        messages.error(request, 'You do not have access to this conversation.')
+        return redirect('inbox')
+
+    # Fetch all messages between these two users for this job
+    chat_messages = Message.objects.filter(
+        Q(sender=request.user, receiver=other_user, job=job) |
+        Q(sender=other_user, receiver=request.user, job=job)
+    ).order_by('created_at')
+
+    # Mark received messages as read
+    chat_messages.filter(receiver=request.user,
+                         is_read=False).update(is_read=True)
+
+    return render(request, 'marketplace/conversation.html', {
+        'job': job,
+        'other_user': other_user,
+        'chat_messages': chat_messages,
+    })
+
+
+@login_required
+def send_message(request, job_pk, user_pk):
+    """
+    Handle POST to send a new message.
+    """
+    if request.method == 'POST':
+        job = get_object_or_404(Job, pk=job_pk)
+        receiver = get_object_or_404(User, pk=user_pk)
+        content = request.POST.get('content', '').strip()
+
+        if content:
+            msg = Message.objects.create(
+                job=job,
+                sender=request.user,
+                receiver=receiver,
+                content=content
+            )
+            # Create a notification for the receiver
+            Notification.objects.create(
+                user=receiver,
+                message=f'{request.user.username} sent you a message about "{job.title}".',
+                link=reverse('conversation', args=[job.pk, request.user.pk])
+            )
+
+        return redirect('conversation', job_pk=job.pk, user_pk=user_pk)
+
+    return redirect('inbox')
+
+
+@login_required
+def fetch_new_messages(request, job_pk, user_pk):
+    """
+    Returns JSON of new messages since a given timestamp.
+    GET parameter: since=<ISO datetime>
+    """
+    since_str = request.GET.get('since', '')
+    try:
+        since = datetime.fromisoformat(
+            since_str) if since_str else timezone.now() - timedelta(days=1)
+    except ValueError:
+        since = timezone.now() - timedelta(days=1)
+
+    job = get_object_or_404(Job, pk=job_pk)
+    other_user = get_object_or_404(User, pk=user_pk)
+
+    messages_qs = Message.objects.filter(
+        Q(sender=request.user, receiver=other_user, job=job) |
+        Q(sender=other_user, receiver=request.user, job=job),
+        created_at__gt=since
+    ).order_by('created_at')
+
+    data = {
+        'messages': [
+            {
+                'id': m.id,
+                'sender': m.sender.username,
+                'content': m.content,
+                'created_at': m.created_at.strftime('%b %d, %H:%M'),
+            } for m in messages_qs
+        ]
+    }
+    return JsonResponse(data)

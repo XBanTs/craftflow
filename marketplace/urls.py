@@ -21,6 +21,10 @@ urlpatterns = [
     path('bids/<int:pk>/accept/', views.bid_accept, name='bid_accept'),
     path('bids/<int:pk>/reject/', views.bid_reject, name='bid_reject'),
     path('notifications/<int:pk>/read/', views.mark_notification_read, name='mark_notification_read'),
+    path('inbox/', views.inbox, name='inbox'),
+    path('messages/<int:job_pk>/<int:user_pk>/', views.conversation, name='conversation'),
+    path('messages/<int:job_pk>/<int:user_pk>/send/', views.send_message, name='send_message'),
+    path('api/messages/<int:job_pk>/<int:user_pk>/new/', views.fetch_new_messages, name='fetch_new_messages'),
 
     # API endpoints
     path('api/jobs/', api_views.JobListCreateAPIView.as_view(), name='api_job_list'),

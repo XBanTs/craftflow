@@ -76,6 +76,12 @@
                     {% endif %}
                 </form>
             {% endif %}
+
+            <!-- Message Client (visible to authenticated freelancers who are not the client) -->
+            {% if user.is_authenticated and user != job.client %}
+                <a href="{% url 'conversation' job.pk job.client.pk %}" class="btn">💬 Message Client</a>
+            {% endif %}
+
         {% elif user.is_authenticated and job.client == user %}
             <a href="{% url 'job_edit' job.pk %}" class="btn">✏️ Edit Job</a>
             <a href="{% url 'job_delete' job.pk %}" class="btn btn-danger">🗑️ Delete Job</a>
@@ -106,6 +112,13 @@
                         <div class="bid-actions" style="margin-top:0.5rem;">
                             <a href="{% url 'bid_accept' bid.pk %}" class="btn btn-sm btn-primary">Accept</a>
                             <a href="{% url 'bid_reject' bid.pk %}" class="btn btn-sm btn-danger">Reject</a>
+                        </div>
+                    {% endif %}
+
+                    <!-- Message this freelancer (visible only to the job client) -->
+                    {% if user == job.client %}
+                        <div class="bid-actions" style="margin-top:0.5rem;">
+                            <a href="{% url 'conversation' job.pk bid.freelancer.pk %}" class="btn btn-sm">💬 Message</a>
                         </div>
                     {% endif %}
 

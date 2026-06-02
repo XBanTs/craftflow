@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Messages | CraftFlow{% endblock %}
+{% block content %}
+<h1>Messages</h1>
+{% if conversations %}
+    <div class="inbox-list">
+        {% for conv in conversations %}
+            <a href="{% url 'conversation' conv.job.pk conv.other_user.pk %}" class="inbox-item {% if conv.unread_count > 0 %}unread{% endif %}">
+                <div class="inbox-avatar">
+                    👤
+                </div>
+                <div class="inbox-details">
+                    <strong>{{ conv.other_user.username }}</strong>
+                    <span class="inbox-job">{{ conv.job.title }}</span>
+                    <p class="inbox-preview">{{ conv.latest_msg.content|truncatewords:10 }}</p>
+                    <small>{{ conv.latest_msg.created_at|date:"M d, H:i" }}</small>
+                    {% if conv.unread_count > 0 %}
+                        <span class="badge-nav">{{ conv.unread_count }}</span>
+                    {% endif %}
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No messages yet.</p>
+{% endif %}
+{% endblock %}

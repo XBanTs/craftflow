@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Chat with {{ other_user.username }} | CraftFlow{% endblock %}
+{% block content %}
+<div class="chat-container reveal">
+    <div class="chat-header">
+        <h2>{{ other_user.username }}</h2>
+        <small>Job: {{ job.title }}</small>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+        {% for msg in chat_messages %}
+            <div class="chat-bubble {% if msg.sender == request.user %}self{% else %}other{% endif %}">
+                <p>{{ msg.content }}</p>
+                <small>{{ msg.created_at|date:"H:i" }}</small>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form method="post" action="{% url 'send_message' job.pk other_user.pk %}" class="chat-input-form" id="chatForm">
+        {% csrf_token %}
+        <input type="text" name="content" placeholder="Type a message..." required autocomplete="off" id="messageInput">
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Polling for new messages
+    const jobPk = '{{ job.pk }}';
+    const userPk = '{{ other_user.pk }}';
+    let lastFetch = new Date().toISOString();
+
+    async function fetchNewMessages() {
+        try {
+            const response = await fetch(`/api/messages/${jobPk}/${userPk}/new/?since=${lastFetch}`);
+            const data = await response.json();
+            if (data.messages && data.messages.length > 0) {
+                const chatDiv = document.getElementById('chatMessages');
+                data.messages.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.className = `chat-bubble ${msg.sender === '{{ request.user.username }}' ? 'self' : 'other'}`;
+                    div.innerHTML = `<p>${msg.content}</p><small>${msg.created_at}</small>`;
+                    chatDiv.appendChild(div);
+                    lastFetch = new Date(msg.created_at + 'Z').toISOString(); // Approximate
+                });
+                chatDiv.scrollTop = chatDiv.scrollHeight;
+            }
+        } catch (err) {
+            console.error('Message fetch error:', err);
+        }
+    }
+
+    setInterval(fetchNewMessages, 5000);  // poll every 5 seconds
+
+    // Auto-scroll to bottom on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const chatDiv = document.getElementById('chatMessages');
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+    });
+
+    // Prevent multiple submissions & clear input
+    document.getElementById('chatForm').addEventListener('submit', function(e) {
+        const input = document.getElementById('messageInput');
+        if (!input.value.trim()) {
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}

@@ -28,6 +28,12 @@
                     <span class="badge-nav">{{ request.user.saved_jobs.count }}</span>
                 </a>
 
+                <!-- Inbox -->
+                <a href="{% url 'inbox' %}" class="nav-link">
+                    💬 Messages
+                    <!-- We can add unread count via AJAX later if desired -->
+                </a>
+
                 <!-- Notifications Bell -->
                 <div class="notification-bell" id="notificationBell">
                     <span class="bell-icon">🔔</span>
