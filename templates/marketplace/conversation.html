@@ -2,9 +2,12 @@
 {% block title %}Chat with {{ other_user.username }} | CraftFlow{% endblock %}
 {% block content %}
 <div class="chat-container reveal">
-    <div class="chat-header">
-        <h2>{{ other_user.username }}</h2>
-        <small>Job: {{ job.title }}</small>
+    <div class="chat-header" style="display: flex; align-items: center;">
+        <div>
+            <h2>{{ other_user.username }}</h2>
+            <small>Job: {{ job.title }}</small>
+        </div>
+        <a href="{% url 'inbox' %}" class="btn btn-sm" style="margin-left:auto;">← Inbox</a>
     </div>
 
     <div class="chat-messages" id="chatMessages">

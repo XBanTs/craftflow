@@ -1403,18 +1403,30 @@ a:hover {
 }
 
 /* -------------------------------------------------------
-   Empty State
+   Empty State Card
    ------------------------------------------------------- */
 
 .empty-state {
-  text-align: center;
-  padding: 3rem 1rem;
+    text-align: center;
+    padding: 3rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin: 2rem 0;
 }
 
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+.empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
 .empty-state p {
-  font-size: 1.15rem;
-  color: var(--text-muted);
-  margin-bottom: var(--space-lg);
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
 }
 
 /* Review section */

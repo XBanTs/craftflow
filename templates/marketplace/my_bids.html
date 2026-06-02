@@ -28,9 +28,11 @@
         {% endfor %}
     </div>
 {% else %}
-    <div class="empty-state">
-        <p>You haven't submitted any bids yet.</p>
-        <a href="{% url 'job_list' %}" class="btn btn-primary">Browse Jobs</a>
+    <div class="empty-state reveal">
+        <div class="empty-state-icon">💰</div>
+        <h3>No bids yet</h3>
+        <p>Start bidding on jobs to get hired.</p>
+        <a href="{% url 'job_list' %}" class="btn btn-primary">Find Jobs</a>
     </div>
 {% endif %}
 {% endblock %}

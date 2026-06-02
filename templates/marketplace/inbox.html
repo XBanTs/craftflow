@@ -22,6 +22,10 @@
         {% endfor %}
     </div>
 {% else %}
-    <p>No messages yet.</p>
+    <div class="empty-state reveal">
+        <div class="empty-state-icon">💬</div>
+        <h3>No messages</h3>
+        <p>When you communicate with clients or freelancers, conversations appear here.</p>
+    </div>
 {% endif %}
 {% endblock %}

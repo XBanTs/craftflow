@@ -12,8 +12,10 @@
         {% endfor %}
     </div>
 {% else %}
-    <div class="empty-state">
-        <p>You haven’t saved any jobs yet.</p>
+    <div class="empty-state reveal">
+        <div class="empty-state-icon">❤️</div>
+        <h3>No saved jobs</h3>
+        <p>Save interesting jobs to come back to them later.</p>
         <a href="{% url 'job_list' %}" class="btn btn-primary">Browse Jobs</a>
     </div>
 {% endif %}
