@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import uuid
 
 
 class FreelancerProfile(models.Model):
@@ -115,3 +116,20 @@ class PortfolioItem(models.Model):
 
     def __str__(self):
         return f"{self.user.username} – {self.title}"
+
+
+class UserVerification(models.Model):
+    """
+    Tracks email verification status for any user.
+    """
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='verification'
+    )
+    email_verified = models.BooleanField(default=False)
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} – {'Verified' if self.email_verified else 'Unverified'}"

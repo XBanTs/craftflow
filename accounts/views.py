@@ -8,7 +8,11 @@ from django.contrib.auth.models import User
 from django.db.models import Sum, Avg
 from marketplace.models import Bid, Review
 from .forms import CustomUserRegistrationForm, FreelancerProfileEditForm, PortfolioItemForm
-from .models import FreelancerProfile, PortfolioItem
+from .models import FreelancerProfile, PortfolioItem, UserVerification
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
+import uuid
 
 
 def register_view(request):
@@ -36,6 +40,27 @@ def register_view(request):
             user = form.save()
             # form.save() returns the newly created User instance.
             # The password is already hashed at this point.
+
+                        # Create verification record
+            verification = UserVerification.objects.create(user=user)
+
+            # Build verification URL
+            verify_url = request.build_absolute_uri(
+                reverse('verify_email', args=[str(verification.token)])
+            )
+
+            # Send verification email
+            send_mail(
+                subject='Verify your CraftFlow account',
+                message=f'Welcome to CraftFlow!\n\nPlease verify your email by clicking the link below:\n{verify_url}',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+
+            # Log user in (but can restrict later if desired)
+            login(request, user)
+            messages.success(request, f'Welcome to CraftFlow, {user.username}! Please check your email to verify your account.')
 
             # Log the user in immediately after registration.
             # This is a UX decision: don't force them to log in after signing up.
@@ -255,3 +280,44 @@ def portfolio_delete(request, pk):
     return render(request, 'accounts/portfolio_confirm_delete.html', {
         'item': item,
     })    
+
+
+def verify_email(request, token):
+    verification = get_object_or_404(UserVerification, token=token)
+    if not verification.email_verified:
+        verification.email_verified = True
+        verification.save()
+        # Optionally activate user if you want to restrict login before verification
+        # verification.user.is_active = True
+        # verification.user.save()
+        messages.success(request, 'Your email has been verified. Thank you!')
+    else:
+        messages.info(request, 'Your email was already verified.')
+    return redirect('dashboard')    
+
+
+@login_required
+def resend_verification(request):
+    user = request.user
+    # Get or create verification record
+    verification, created = UserVerification.objects.get_or_create(user=user)
+    if verification.email_verified:
+        messages.info(request, 'Your email is already verified.')
+        return redirect('dashboard')
+
+    # Generate new token
+    verification.token = uuid.uuid4()
+    verification.save()
+
+    verify_url = request.build_absolute_uri(
+        reverse('verify_email', args=[str(verification.token)])
+    )
+    send_mail(
+        subject='Verify your CraftFlow account',
+        message=f'Please verify your email by clicking the link below:\n{verify_url}',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+    messages.success(request, 'A new verification email has been sent.')
+    return redirect('dashboard')    

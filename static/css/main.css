@@ -566,6 +566,12 @@ a:hover {
   margin-left: 0.5rem;
 }
 
+.verification-nudge {
+    background: #FEF3C7;
+    border-left: 4px solid #F59E0B;
+    margin-bottom: 1rem;
+}
+
 /* -------------------------------------------------------
    Flash Messages
    ------------------------------------------------------- */

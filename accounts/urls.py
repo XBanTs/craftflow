@@ -11,4 +11,6 @@ urlpatterns = [
     path('portfolio/add/', views.portfolio_create, name='portfolio_create'),
     path('portfolio/<int:pk>/edit/', views.portfolio_edit, name='portfolio_edit'),
     path('portfolio/<int:pk>/delete/', views.portfolio_delete, name='portfolio_delete'),
+    path('verify/<uuid:token>/', views.verify_email, name='verify_email'),
+    path('resend-verification/', views.resend_verification, name='resend_verification'),
 ]

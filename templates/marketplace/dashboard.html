@@ -11,6 +11,12 @@
                 <a href="{% url 'profile_edit' request.user.pk %}" class="btn btn-primary btn-sm">Complete Profile</a>
             </div>
         {% endif %}
+        {% if not is_email_verified %}
+            <div class="profile-nudge verification-nudge">
+                <span>⚠️ Your email is not verified. Verify now to build trust.</span>
+                <a href="{% url 'resend_verification' %}" class="btn btn-primary btn-sm">Send Verification Email</a>
+            </div>
+        {% endif %}
     </div>
 
     <!-- Tab Navigation -->

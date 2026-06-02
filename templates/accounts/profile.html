@@ -11,6 +11,12 @@
         {% endif %}
     </h1>
 
+    {% if not is_email_verified and request.user == profile_user %}
+        <div class="profile-nudge" style="margin-top:1rem;">
+            <span>Your email is not verified. <a href="{% url 'resend_verification' %}">Resend verification email</a></span>
+        </div>
+    {% endif %}
+
     {% if freelancer_profile %}
         <section class="profile-section">
             <h2>About</h2>
