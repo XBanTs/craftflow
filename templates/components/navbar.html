@@ -2,7 +2,9 @@
 {% load static %}
 <nav class="navbar">
     <div class="container navbar-inner">
-        <a href="{% url 'home' %}" class="navbar-brand">CraftFlow</a>
+        <a href="{% url 'home' %}" class="navbar-brand">
+    <img src="{% static 'images/logo.png' %}" alt="CraftFlow">
+</a>
 
         <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle navigation">
             <span id="navbarToggleIcon">☰</span>
