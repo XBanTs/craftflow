@@ -205,7 +205,17 @@ REST_FRAMEWORK = {
     ],
 }
 
+# Email Configuration
+if DEBUG:
+    # Development: print emails to terminal
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    # Production: use SendGrid SMTP
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = config('EMAIL_HOST')                          # smtp.sendgrid.net
+    EMAIL_PORT = config('EMAIL_PORT', cast=int, default=587)   # 587 for TLS
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER')                # apikey
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')        # your API key
+    EMAIL_USE_TLS = True
 
-# Email backend (console for development – prints to terminal)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'CraftFlow <noreply@craftflow.com>'
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@craftflow-tyl3.onrender.com/')

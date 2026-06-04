@@ -10,6 +10,7 @@ from marketplace.models import Bid, Review
 from .forms import CustomUserRegistrationForm, FreelancerProfileEditForm, PortfolioItemForm
 from .models import FreelancerProfile, PortfolioItem, UserVerification
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from django.conf import settings
 from django.urls import reverse
 import uuid
@@ -41,7 +42,7 @@ def register_view(request):
             # form.save() returns the newly created User instance.
             # The password is already hashed at this point.
 
-                        # Create verification record
+            # Create verification record
             verification = UserVerification.objects.create(user=user)
 
             # Build verification URL
@@ -49,21 +50,28 @@ def register_view(request):
                 reverse('verify_email', args=[str(verification.token)])
             )
 
-            # Send verification email
+            # Render HTML email content
+            html_message = render_to_string('accounts/emails/verify_email.html', {
+                'user': user,
+                'verify_url': verify_url,
+            })
+
+            # Send verification email with HTML content
             send_mail(
                 subject='Verify your CraftFlow account',
                 message=f'Welcome to CraftFlow!\n\nPlease verify your email by clicking the link below:\n{verify_url}',
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
                 fail_silently=False,
+                html_message=html_message,
             )
 
             # Log user in (but can restrict later if desired)
             login(request, user)
             messages.success(request, f'Welcome to CraftFlow, {user.username}! Please check your email to verify your account.')
 
-            # Log the user in immediately after registration.
-            # This is a UX decision: don't force them to log in after signing up.
+            # The user is already logged in just above, so this duplicate login call is unnecessary
+            # but preserved for consistency with original code.
             login(request, user)
 
             messages.success(
@@ -163,7 +171,7 @@ def profile_view(request, pk):
     avg_rating = reviews_received.aggregate(avg=Avg('rating'))['avg'] or 0
     review_count = reviews_received.count()
 
-        # Portfolio items (only if freelancer profile exists)
+    # Portfolio items (only if freelancer profile exists)
     portfolio_items = []
     if freelancer_profile:
         portfolio_items = PortfolioItem.objects.filter(user=profile_user).order_by('-created_at')
@@ -312,12 +320,20 @@ def resend_verification(request):
     verify_url = request.build_absolute_uri(
         reverse('verify_email', args=[str(verification.token)])
     )
+
+    # Render HTML email content
+    html_message = render_to_string('accounts/emails/verify_email.html', {
+        'user': user,
+        'verify_url': verify_url,
+    })
+
     send_mail(
         subject='Verify your CraftFlow account',
         message=f'Please verify your email by clicking the link below:\n{verify_url}',
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],
         fail_silently=False,
+        html_message=html_message,
     )
     messages.success(request, 'A new verification email has been sent.')
-    return redirect('dashboard')    
+    return redirect('dashboard')
