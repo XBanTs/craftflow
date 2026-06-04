@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
@@ -9,11 +11,14 @@ from django.db.models import Sum, Avg
 from marketplace.models import Bid, Review
 from .forms import CustomUserRegistrationForm, FreelancerProfileEditForm, PortfolioItemForm
 from .models import FreelancerProfile, PortfolioItem, UserVerification
-from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.urls import reverse
 import uuid
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, HtmlContent
+
+logger = logging.getLogger(__name__)
 
 
 def register_view(request):
@@ -48,20 +53,26 @@ def register_view(request):
                 reverse('verify_email', args=[str(verification.token)])
             )
 
-            # Send verification email
-            context = {
+            # Render HTML email content
+            html_message = render_to_string('accounts/emails/verify_email.html', {
                 'user': user,
                 'verify_url': verify_url,
-            }
-            html_message = render_to_string('accounts/emails/verify_email.html', context)
-            email = EmailMultiAlternatives(
-                subject='Verify your CraftFlow account',
-                body=f'Please verify your email: {verify_url}',
+            })
+
+            # Send verification email using SendGrid directly
+            message = Mail(
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[user.email],
+                to_emails=user.email,
+                subject='Verify your CraftFlow account',
+                plain_text_content=f'Please verify your email: {verify_url}',
             )
-            email.attach_alternative(html_message, 'text/html')
-            email.send(fail_silently=True)
+            message.html_content = HtmlContent(html_message)
+            try:
+                sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+                response = sg.send(message)
+                logger.info(f"SendGrid status: {response.status_code}")
+            except Exception as e:
+                logger.error(f"SendGrid error: {e}")
 
             # Log user in (but can restrict later if desired)
             login(request, user)
@@ -296,19 +307,26 @@ def resend_verification(request):
         reverse('verify_email', args=[str(verification.token)])
     )
 
-    context = {
+    # Render HTML email content
+    html_message = render_to_string('accounts/emails/verify_email.html', {
         'user': request.user,
         'verify_url': verify_url,
-    }
-    html_message = render_to_string('accounts/emails/verify_email.html', context)
-    email = EmailMultiAlternatives(
-        subject='Verify your CraftFlow account',
-        body=f'Please verify your email: {verify_url}',
+    })
+
+    # Send verification email using SendGrid directly
+    message = Mail(
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[request.user.email],
+        to_emails=user.email,
+        subject='Verify your CraftFlow account',
+        plain_text_content=f'Please verify your email: {verify_url}',
     )
-    email.attach_alternative(html_message, 'text/html')
-    email.send(fail_silently=True)
+    message.html_content = HtmlContent(html_message)
+    try:
+        sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+        response = sg.send(message)
+        logger.info(f"SendGrid status: {response.status_code}")
+    except Exception as e:
+        logger.error(f"SendGrid error: {e}")
 
     messages.success(request, 'A new verification email has been sent.')
     return redirect('dashboard')
