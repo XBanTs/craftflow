@@ -9,7 +9,7 @@ from django.db.models import Sum, Avg
 from marketplace.models import Bid, Review
 from .forms import CustomUserRegistrationForm, FreelancerProfileEditForm, PortfolioItemForm
 from .models import FreelancerProfile, PortfolioItem, UserVerification
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.urls import reverse
@@ -31,8 +31,6 @@ def register_view(request):
     - It also prevents accidental double-submission.
     """
     if request.user.is_authenticated:
-        # If the user is already logged in, redirect them to home.
-        # No reason to show the registration page to authenticated users.
         return redirect('home')
 
     if request.method == 'POST':
@@ -50,28 +48,26 @@ def register_view(request):
                 reverse('verify_email', args=[str(verification.token)])
             )
 
-            # Render HTML email content
-            html_message = render_to_string('accounts/emails/verify_email.html', {
+            # Send verification email
+            context = {
                 'user': user,
                 'verify_url': verify_url,
-            })
-
-            # Send verification email with HTML content
-            send_mail(
+            }
+            html_message = render_to_string('accounts/emails/verify_email.html', context)
+            email = EmailMultiAlternatives(
                 subject='Verify your CraftFlow account',
-                message=f'Welcome to CraftFlow!\n\nPlease verify your email by clicking the link below:\n{verify_url}',
+                body=f'Please verify your email: {verify_url}',
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=False,
-                html_message=html_message,
+                to=[user.email],
             )
+            email.attach_alternative(html_message, 'text/html')
+            email.send(fail_silently=True)
 
             # Log user in (but can restrict later if desired)
             login(request, user)
             messages.success(request, f'Welcome to CraftFlow, {user.username}! Please check your email to verify your account.')
 
-            # The user is already logged in just above, so this duplicate login call is unnecessary
-            # but preserved for consistency with original code.
+            # Duplicate login kept for consistency (already logged in above)
             login(request, user)
 
             messages.success(
@@ -80,8 +76,6 @@ def register_view(request):
             )
             return redirect('dashboard')
         else:
-            # The form is invalid — Django has already populated form.errors.
-            # We add a generic error message for the user.
             messages.error(request, 'Please correct the errors below.')
     else:
         form = CustomUserRegistrationForm()
@@ -105,13 +99,7 @@ def login_view(request):
 
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
-        # AuthenticationForm takes 'request' as the first positional argument
-        # because it uses request.session for security (login rate limiting).
-        # data=request.POST must be passed as a keyword argument.
-
         if form.is_valid():
-            # form.get_user() returns the authenticated User object.
-            # This user has already been verified by authenticate() inside the form.
             user = form.get_user()
             login(request, user)
             messages.success(request, f'Welcome back, {user.username}!')
@@ -133,12 +121,9 @@ def logout_view(request):
     """
     if request.method == 'POST':
         logout(request)
-        # logout() clears the session and removes the user from request.
         messages.success(request, 'You have been logged out.')
         return redirect('home')
 
-    # If someone navigates to /accounts/logout/ via GET, show them the home page.
-    # Logout should only happen via POST.
     return redirect('home')
 
 
@@ -188,6 +173,7 @@ def profile_view(request, pk):
     }
     return render(request, 'accounts/profile.html', context)
 
+
 @staff_member_required
 def admin_dashboard(request):
     """
@@ -199,15 +185,7 @@ def admin_dashboard(request):
     This satisfies the Brief's requirement: at least one action restricted to
     staff or admin users only.
     """
-    # We can add summary stats here later.
-    total_jobs = 0
-    total_users = 0
-
-    # We'll import models inside the function to avoid circular imports,
-    # or import at the top. For now, we keep it simple.
     from marketplace.models import Job
-    from django.contrib.auth.models import User
-
     total_jobs = Job.objects.count()
     total_users = User.objects.count()
 
@@ -287,7 +265,7 @@ def portfolio_delete(request, pk):
         return redirect('profile', pk=request.user.pk)
     return render(request, 'accounts/portfolio_confirm_delete.html', {
         'item': item,
-    })    
+    })
 
 
 def verify_email(request, token):
@@ -295,13 +273,10 @@ def verify_email(request, token):
     if not verification.email_verified:
         verification.email_verified = True
         verification.save()
-        # Optionally activate user if you want to restrict login before verification
-        # verification.user.is_active = True
-        # verification.user.save()
         messages.success(request, 'Your email has been verified. Thank you!')
     else:
         messages.info(request, 'Your email was already verified.')
-    return redirect('dashboard')    
+    return redirect('dashboard')
 
 
 @login_required
@@ -321,19 +296,19 @@ def resend_verification(request):
         reverse('verify_email', args=[str(verification.token)])
     )
 
-    # Render HTML email content
-    html_message = render_to_string('accounts/emails/verify_email.html', {
-        'user': user,
+    context = {
+        'user': request.user,
         'verify_url': verify_url,
-    })
-
-    send_mail(
+    }
+    html_message = render_to_string('accounts/emails/verify_email.html', context)
+    email = EmailMultiAlternatives(
         subject='Verify your CraftFlow account',
-        message=f'Please verify your email by clicking the link below:\n{verify_url}',
+        body=f'Please verify your email: {verify_url}',
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
-        fail_silently=False,
-        html_message=html_message,
+        to=[request.user.email],
     )
+    email.attach_alternative(html_message, 'text/html')
+    email.send(fail_silently=True)
+
     messages.success(request, 'A new verification email has been sent.')
     return redirect('dashboard')
