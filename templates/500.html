@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Server Error | CraftFlow{% endblock %}
+{% block content %}
+<div class="empty-state reveal">
+    <div class="empty-state-icon">⚠️</div>
+    <h2>Something Went Wrong</h2>
+    <p>We're experiencing a technical difficulty. Please try again shortly.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary">Go Home</a>
+</div>
+{% endblock %}

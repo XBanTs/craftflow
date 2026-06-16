@@ -16,7 +16,7 @@ from django.conf import settings
 from django.urls import reverse
 import uuid
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, HtmlContent
+from sendgrid.helpers.mail import Mail
 
 logger = logging.getLogger(__name__)
 
@@ -48,43 +48,37 @@ def register_view(request):
             # Create verification record
             verification = UserVerification.objects.create(user=user)
 
-            # Build verification URL
-            verify_url = request.build_absolute_uri(
-                reverse('verify_email', args=[str(verification.token)])
-            )
+            # Log user in immediately (verification optional)
+            login(request, user)
 
-            # Render HTML email content
-            html_message = render_to_string('accounts/emails/verify_email.html', {
-                'user': user,
-                'verify_url': verify_url,
-            })
-
-            # Send verification email using SendGrid directly
-            message = Mail(
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to_emails=user.email,
-                subject='Verify your CraftFlow account',
-                plain_text_content=f'Please verify your email: {verify_url}',
-            )
-            message.html_content = HtmlContent(html_message)
+            # Try to send verification email
             try:
+                verify_url = request.build_absolute_uri(
+                    reverse('verify_email', args=[str(verification.token)])
+                )
+                # Render HTML email content
+                html_message = render_to_string('accounts/emails/verify_email.html', {
+                    'user': user,
+                    'verify_url': verify_url,
+                })
+
+                # Use SendGrid directly with hardcoded verified sender
+                message = Mail(
+                    from_email='emma98oye@gmail.com',   # hardcoded verified sender
+                    to_emails=user.email,
+                    subject='Verify your CraftFlow account',
+                    plain_text_content=f'Please verify your email: {verify_url}',
+                )
+                message.html_content = html_message   # the rendered HTML string
+
                 sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
                 response = sg.send(message)
-                logger.info(f"SendGrid status: {response.status_code}")
+                logger.info(f"SendGrid response: {response.status_code}")
+                messages.success(request, 'Verification email sent!')
             except Exception as e:
                 logger.error(f"SendGrid error: {e}")
+                messages.success(request, 'Account created, but email could not be sent.')
 
-            # Log user in (but can restrict later if desired)
-            login(request, user)
-            messages.success(request, f'Welcome to CraftFlow, {user.username}! Please check your email to verify your account.')
-
-            # Duplicate login kept for consistency (already logged in above)
-            login(request, user)
-
-            messages.success(
-                request,
-                f'Welcome to CraftFlow, {user.username}! Your account has been created.'
-            )
             return redirect('dashboard')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -313,20 +307,22 @@ def resend_verification(request):
         'verify_url': verify_url,
     })
 
-    # Send verification email using SendGrid directly
+    # Send verification email using SendGrid directly with hardcoded sender
     message = Mail(
-        from_email=settings.DEFAULT_FROM_EMAIL,
+        from_email='emma98oye@gmail.com',   # hardcoded verified sender
         to_emails=user.email,
         subject='Verify your CraftFlow account',
         plain_text_content=f'Please verify your email: {verify_url}',
     )
-    message.html_content = HtmlContent(html_message)
+    message.html_content = html_message   # the rendered HTML string
+
     try:
         sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
         response = sg.send(message)
-        logger.info(f"SendGrid status: {response.status_code}")
+        logger.info(f"SendGrid response: {response.status_code}")
+        messages.success(request, 'Verification email sent!')
     except Exception as e:
         logger.error(f"SendGrid error: {e}")
+        messages.success(request, 'Could not send verification email. Please try again later.')
 
-    messages.success(request, 'A new verification email has been sent.')
     return redirect('dashboard')
